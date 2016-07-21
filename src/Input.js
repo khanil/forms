@@ -9,25 +9,18 @@ export default class Input extends Component {
 	}
 
 	changeHandler(e) {
-		//this.props.model.value = e.target.value;
-		
-		const updateModel = this.props.onChange;
-		const key = this.props.model._responseKey;
-		updateModel(key, e.target.value);
+		this.props.model.value = e.target.value;
 	}
 
 	render() {
 		const {
-			model,
-			value
+			model
 		} =  this.props;
-
-		//console.log(model.value);
 
 		return (
 			<div className="form-group">
 				<label>{model.title}</label>
-				<input type="text" className="form-control" value={value} onChange={this.changeHandler}/>
+				<input type="text" className="form-control" value={model.value} onChange={this.changeHandler}/>
 			</div>
 		);
 	}

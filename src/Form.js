@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Input from './Input';
-import buildModel from './Model';
 
 const initialState = ['123', '456'];
 /*
@@ -18,8 +17,6 @@ export default class Form extends Component {
 		};
 
 		this.state.model = this.buildModel(this.props.scheme);
-
-		this.changeHandler = this.changeHandler.bind(this);
 	}
 
 	buildModel(scheme) {
@@ -36,28 +33,20 @@ export default class Form extends Component {
 				nextAvailableResponsesKey++;
 
 				//dynamic changing value of field
-				// Object.defineProperty(item, "value", { 
-				// 	get: () => (this.state.responses[item._responseKey]),
-				// 	set: (value) => {
-				// 		const newResponsesState = this.state.responses.slice();
-				// 		newResponsesState[item._responseKey] = value;
-				// 		this.setState({responses: newResponsesState});
-				// 	}
-				// });
+				Object.defineProperty(item, "value", { 
+					get: () => (this.state.responses[item._responseKey]),
+					set: (value) => {
+						const newResponsesState = this.state.responses.slice();
+						newResponsesState[item._responseKey] = value;
+						this.setState({responses: newResponsesState});
+					}
+				});
 			}
 		}
 
 		console.log('Builded model: ');
 		console.log(model);
 		return model;
-	}
-
-	changeHandler(key, value) {
-		const newResponsesState = this.state.responses.slice();
-
-		newResponsesState[key] = value;
-
-		this.setState({responses: newResponsesState});
 	}
 
 	render() {
@@ -75,7 +64,7 @@ export default class Form extends Component {
 
 							switch (itemType) {
 								case 'question':
-									return <Input key={i} model={item} value={this.state.responses[item._responseKey]} onChange={this.changeHandler}/>;
+									return <Input key={i} model={item}/>;
 
 								default:
 									return <div key={i}>Delimeter</div>
