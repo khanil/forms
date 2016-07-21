@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 
 export default class Input extends Component {
 
@@ -24,4 +24,8 @@ export default class Input extends Component {
 			</div>
 		);
 	}
+}
+
+Input.propTypes = {
+  model: PropTypes.object.isRequired
 }
