@@ -1,31 +1,31 @@
 import React, { Component, PropTypes } from 'react';
 
-export default class Input extends Component {
+export default class InputComponent extends Component {
 
-	constructor(props) {
-		super(props);
+  constructor(props) {
+    super(props);
 
-		this.changeHandler = this.changeHandler.bind(this);
-	}
+    this.changeHandler = this.changeHandler.bind(this);
+  }
 
-	changeHandler(e) {
-		this.props.model.value = e.target.value;
-	}
+  changeHandler(e) {
+    this.props.model.value = e.target.value;
+  }
 
-	render() {
-		const {
-			model
-		} =  this.props;
+  render() {
+    const {
+      model
+    } =  this.props;
 
-		return (
-			<div className="form-group">
-				<label>{model.title}</label>
-				<input type="text" className="form-control" value={model.value} onChange={this.changeHandler}/>
-			</div>
-		);
-	}
+    return (
+      <div className="form-group">
+        <label>{model.title}</label>
+        <input type="text" className="form-control" value={model.value} onChange={this.changeHandler}/>
+      </div>
+    );
+  }
 }
 
-Input.propTypes = {
+InputComponent.propTypes = {
   model: PropTypes.object.isRequired
 }

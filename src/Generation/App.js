@@ -1,12 +1,27 @@
 import React, { Component } from 'react';
-import Form from './Form';
+import FormGenerator from './FormGenerator';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk'
+import * as nestedObject from './nestedObject';
 
-const initalState = {
-  forms: {}
-}
+// const state = {
+//   forms: {
+//     scheme: {
+//       title: '',
+//       description: '',
+//       items: [
+//         {
+//           _type: 'question',
+//           title: '',
+//           type: ''
+//         }
+//       ]
+//     }
+//   }
+// }
+
+const initalState = {};
 
 const store = configureStore(initalState, rootReducer);
 
@@ -21,15 +36,18 @@ function rootReducer (state = initalState, action) {
       const {
         formKey,
         fieldKey,
+        localPath,
         value
       } = action.payload;
 
-      const responsesNew = state.forms[formKey].slice();
-      responsesNew[fieldKey] = value;
+      let path = ['forms', 'scheme'];
+      if (localPath !== null)
+        path = path.concat(localPath.split('.'));
 
-      return Object.assign({}, state, {
-        forms: Object.assign({}, state.forms, { [formKey]: responsesNew })
-      });
+      const newState = nestedObject.setProperty(state, path, fieldKey, value);
+      console.log( newState );
+
+      return newState;
 
     default:
       return state;
@@ -51,41 +69,11 @@ function configureStore(initialState, rootReducer) {
   return store;
 }
 
-const scheme = {
-  title: 'Моя форма',
-  items: [
-    {
-      _type: 'question',
-      title: 'Текст вопроса',
-      type: 'integer'
-    },
-    {
-      _type: 'delimeter',
-      title: 'Разделитель'
-    },
-    {
-      _type: 'question',
-      title: 'Тип ответа',
-      type: 'string'
-    },
-    {
-      _type: 'question',
-      title: 'Описание вопроса',
-      type: 'string'
-    },
-    {
-      _type: 'question',
-      title: 'Обязательный?',
-      type: 'string'
-    }
-  ]
-};
-
 export default class App extends Component {
   render() {
     return (
       <Provider store={store}>
-        <Form formKey='myForm' scheme={scheme}/>
+        <FormGenerator />
       </Provider>
     );
   }

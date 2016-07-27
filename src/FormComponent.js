@@ -1,10 +1,11 @@
 import React, { Component, PropTypes } from 'react';
-import Input from './Input';
-import { connect } from 'react-redux';
+import renderModel from './renderModel';
 
-/*
-@param:
-@scheme
+/**
+ * Presentational component that renders input fields based on provided scheme
+ * @param {object} scheme
+ * @param {func} setFieldValue transmits user input changes to store
+ * @param {func} getFieldValue extracts user input value from store
  */
 export default class FormComponent extends Component {
 
@@ -15,6 +16,7 @@ export default class FormComponent extends Component {
 			model: []
 		};
 
+		//model is the improved scheme that has properties to control the input fields
 		this.state.model = this.buildModel(this.props.scheme);
 	}
 
@@ -25,34 +27,31 @@ export default class FormComponent extends Component {
 	 */
 	buildModel(scheme) {
 		//copying scheme to solo object
-		const model = scheme.questions.map( (item, i) => (Object.assign({}, item)));
+		const model = scheme.items.map( (item, i) => (Object.assign({}, item)));
+
+		//define responses object location relative to root store object
+		const localPath = (this.props.path !== undefined) ? this.props.path : null;
 
 		let nextAvailableResponsesKey = 0;
 		for (let key in model) {
 			let item = model[key];
 
 			if (item._type === 'question') {
+				//questions must contain special properties that handle input fields behavior
+				const inputContainer = item;
+
 				//set pointer to element in responses object, where the value of input field will be stored
-				item._responseKey = nextAvailableResponsesKey;
+				inputContainer._responseKey = (inputContainer.name) ? inputContainer.name : nextAvailableResponsesKey;
 				nextAvailableResponsesKey++;
 
 				//dynamic changing value of field
-				Object.defineProperty(item, "value", { 
-					get: () => (this.props.store[item._responseKey]),
-					set: (value) => {
-						// const newResponsesState = this.store.slice();
-						// newResponsesState[item._responseKey] = value;
-						// this.setState({responses: newResponsesState});
-						this.props.dispatch({
-							type: 'FIELD_VALUE_CHANGED',
-							payload: {
-								formKey: this.props._formKey,
-								fieldKey: item._responseKey,
-								value: value
-							}
-						});
-					}
+				Object.defineProperty(inputContainer, "value", { 
+					get: () => ( this.props.getFieldValue(localPath, inputContainer._responseKey) ),
+					set: (value) => { this.props.setFieldValue(localPath, inputContainer._responseKey, value) }
 				});
+
+				//is value belongs to input type and passes validation rule
+				inputContainer._valid = true;
 			}
 		}
 
@@ -69,27 +68,16 @@ export default class FormComponent extends Component {
 		return (
 			<form action="" method="POST" role="form">
 				<legend>{formTitle}</legend>
-			
-					{
-						model.map( (item, i) => {
-							const itemType = item._type;
 
-							switch (itemType) {
-								case 'question':
-									return <Input key={i} model={item}/>;
+				{renderModel(model)}
 
-								default:
-									return <div key={i}>Delimeter</div>
-							}
-						})
-					}
-
-				<button type="submit" className="btn btn-primary">Submit</button>
 			</form>
 		)
 	}
 }
 
 FormComponent.propTypes = {
-  scheme: PropTypes.object.isRequired
+  scheme: PropTypes.object.isRequired,
+  setFieldValue: PropTypes.func,
+  getFieldValue: PropTypes.func
 }
