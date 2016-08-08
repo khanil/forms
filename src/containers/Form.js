@@ -1,23 +1,20 @@
 import React, { Component, PropTypes } from 'react';
-import FormComponent from './FormComponent';
 import { connect } from 'react-redux';
+import FormComponent from '../components/FormComponent';
+import { initForm, handleUserInput } from '../actions';
 
 /**
- * Container component that provides data and callbacks for FormComponent
+ * Container component that provides data, callbacks and scheme for FormComponent
  * @param {string} formKey name of object that will store form responses in redux-state
+ * @param {object} scheme
  */
 class Form extends Component {
   constructor(props) {
     super(props);
-
-    this.dispatch = this.props.dispatch;
     this._formKey = this.props.formKey;
 
     // make object in redux store to store responses of current form
-    this.dispatch({
-      type: 'INIT_FORM',
-      payload: this._formKey
-    });
+    this.props.initForm(this._formKey, this.props.initialState);
 
     this.setFieldValue = this.setFieldValue.bind(this);
     this.getFieldValue = this.getFieldValue.bind(this);
@@ -29,15 +26,7 @@ class Form extends Component {
    * @param  {any} value    [new value]
    */
   setFieldValue(localPath, fieldKey, value) {
-    this.dispatch({
-      type: 'FIELD_VALUE_CHANGED',
-      payload: {
-        formKey: this._formKey,
-        localPath,
-        fieldKey,
-        value
-      }
-    });
+    this.props.handleUserInput(this._formKey, fieldKey, localPath, value);
   }
 
   /**
@@ -46,8 +35,10 @@ class Form extends Component {
    * @return {any}          [stored value]
    */
   getFieldValue(localPath, fieldKey) {
+    // if (this.props.form == undefined) return undefined;
+    // return this.state.forms[this._formKey][fieldKey];
     const store = (this.props._forms[this._formKey] === undefined) ? [] : this.props._forms[this._formKey];
-    return store[fieldKey]
+    return store[fieldKey];
   }
 
   render() {
@@ -59,14 +50,21 @@ class Form extends Component {
 
 Form.propTypes = {
   formKey: PropTypes.string.isRequired,
-  scheme: PropTypes.object.isRequired
+  scheme: PropTypes.object.isRequired,
+  initialState: PropTypes.object
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
   return {
-    _forms: state.forms
+    // form: state.forms[ownProps._formKey],
+    _forms: state.forms,
+    scheme: state.forms['scheme']
   }
 };
 
+const mapDispatchToProps = {
+  initForm,
+  handleUserInput
+}
 
-export default connect(mapStateToProps)(Form);
+export default connect(mapStateToProps, mapDispatchToProps)(Form);

@@ -1,8 +1,10 @@
 import React from 'react';
 import * as itemType from './itemTypes';
-import InputGroup from './InputGroup';
-import Delimeter from './Delimeter';
-import renderInput from './InputComponents/renderInput';
+import InputGroup from '../components/InputGroup';
+import Delimeter from '../components/Delimeter';
+import MultipleInput from '../components/MultipleInput';
+import renderInput from './renderInput';
+
 
 /**
  * renders react components based on model
@@ -10,13 +12,17 @@ import renderInput from './InputComponents/renderInput';
  * @return {array of react-elements}
  */
 export default function renderModel(model) {
+	let questionsCounter = 0;
+
 	return model.map( (item, i) => {
 		const type = item._type;
 
 		switch (type.toLowerCase()) {
 			case itemType.QUESTION :
-				return <InputGroup key={i} model={item}>
-									{renderInput(item)}
+				const index = questionsCounter++;
+
+				return <InputGroup key={i} index={index} model={item}>
+									{renderInput(item, index)}
 							 </InputGroup>;
 
 			case itemType.DELIMETER :

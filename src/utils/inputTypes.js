@@ -10,4 +10,4 @@ export const TIME = 'time';
 export const DATETIME = 'datetime';
 export const PARAGRAPH = 'paragraph';
 export const FINANCIAL = 'financial';
-export const LIST = 'list';
+export const SELECT = 'select';
