@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import Input from './Input';
 import { isInteger } from '../../utils/validations';
 
-export default class InputNumber extends Input {
+export default class InputInteger extends Input {
 
   constructor(props) {
     super(props, isInteger);

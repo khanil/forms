@@ -7,15 +7,61 @@ import momentLocalizer from 'react-widgets/lib/localizers/moment';
 
 momentLocalizer(Moment);
 
+const dateFormat = 'DD.MM.YYYY';
+const timeFormat = 'HH:mm';
+
+/**
+ * React component for displaying input typeof date, time or datetime based on props
+ * @param {string} mode set the input type (datetime or date only or time only)
+ */
 export default class InputDatetime extends Input {
 
   constructor(props) {
     super(props);
 
+    this.displayFormat;
+    this.showDatePicker;
+    this.showTimePicker;
+    this.applyMode(props.mode);
     this.changeHandler = this.changeHandler.bind(this);
-    this.format = 'DD MMM YYYY, HH:mm';
-    this.editFormat = 'DD/MM/YY HH:mm';
-    this.step = 1;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.mode !== nextProps.mode)
+      this.applyMode(nextProps.mode);
+  }
+
+  applyMode(mode) {
+    switch (mode) {
+      case 'date': {
+        this.displayFormat = dateFormat;
+        this.showDatePicker = true;
+        this.showTimePicker = false;
+        return;
+      }
+
+      case 'time': {
+        this.displayFormat = timeFormat;
+        this.showDatePicker = false;
+        this.showTimePicker = true;
+        return;
+      }
+
+      default: {
+        this.displayFormat = `${dateFormat} ${timeFormat}`;
+        this.showDatePicker = this.showTimePicker = true;
+        return;
+      }
+    }
+  }
+
+  changeHandler(date) {
+    //incorrect date
+    if (date === null)
+      return;
+    //value as ISO 8601 string
+    const value = Moment(date).format();
+    super.changeHandler(value);
   }
 
   render() {
@@ -23,26 +69,14 @@ export default class InputDatetime extends Input {
       model
     } =  this.props;
 
-    const min = null;
-    const max = null;
-
-    console.log(Moment(model.value, this.format).toDate());
-
-    //value={(model.value) ? Moment(model.value).toDate() : null}
-
     return (
       <DateTimePicker
-        calendar={this.props.date}
-        format={this.format}
-        editFormat={this.editFormat}
-        value={(model.value) ? Moment(model.value, this.format).toDate() : null}
-        onChange={ (name, value) => { this.changeHandler({ target: { value: value } }) } }
-        step={this.step}
-        time={this.props.time}
-        min={min ? min : new Date(1900, 0, 1)}
-        max={max ? max : new Date(2099, 11, 31)}
+        calendar={this.showDatePicker}
+        format={this.displayFormat}
+        onChange={this.changeHandler}
+        time={this.showTimePicker}
+        value={ model.value ? Moment(model.value).toDate() : null }
       />
     );
   }
 }
-

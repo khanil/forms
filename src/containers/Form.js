@@ -16,6 +16,7 @@ class Form extends Component {
     // make object in redux store to store responses of current form
     this.props.initForm(this._formKey, this.props.initialState);
 
+    this.submitHandler = this.submitHandler.bind(this);
     this.setFieldValue = this.setFieldValue.bind(this);
     this.getFieldValue = this.getFieldValue.bind(this);
   }
@@ -41,9 +42,27 @@ class Form extends Component {
     return store[fieldKey];
   }
 
+  submitHandler() {
+    const isFormValid = this.refs.formComponent.checkFormValidity();
+    console.log(`Form valid? -${isFormValid}`);
+
+    if (!isFormValid)
+      return;
+
+    if (!this.props.onSubmit)
+      console.error('onSubmit function does\'nt provided as a prop to Form component');
+    else
+      this.props.onSubmit(this.props._forms[this._formKey]);
+
+    alert(JSON.stringify(this.props._forms[this._formKey], "", 4));
+  }
+
   render() {
     return (
-      <FormComponent scheme={this.props.scheme} setFieldValue={this.setFieldValue} getFieldValue={this.getFieldValue} />
+      <div>
+        <FormComponent ref='formComponent' scheme={this.props.scheme} setFieldValue={this.setFieldValue} getFieldValue={this.getFieldValue} />
+        <button type="button" className="btn btn-primary" onClick={this.submitHandler}>Отправить</button>
+      </div>
     );
   }
 }

@@ -22,6 +22,28 @@ export default class InputSelect extends Input {
         }
       ));
     }
+
+    return options;
+  }
+
+  changeHandler(valObj) {
+    const value = valObj.value;
+    const prevValue = this.props.model.value;
+    // console.log(`newValue: ${value}, oldValue: ${prevValue}`);
+
+    if (this.props.model.callbacks !== undefined) {
+      if (value !== prevValue) {
+        // console.log('toggle');
+        if (this.props.model.callbacks[value] !== undefined) {
+          this.props.model.callbacks[value]();
+        }
+        if (this.props.model.callbacks[prevValue] !== undefined) {
+          this.props.model.callbacks[prevValue]();
+        }
+      }
+    }
+
+    super.changeHandler(value);
   }
 
   render() {
@@ -35,8 +57,8 @@ export default class InputSelect extends Input {
       <Select
         clearable={false}
         options={options}
-        onChange={ (val) => { this.changeHandler({ target: val }) } }
-        placeholder={ model.placeholder ? model.placeholder : 'Выберите из списка...'}
+        onChange={ this.changeHandler }
+        placeholder={ model.placeholder ? model.placeholder : 'Выберите ответ из списка...'}
         value={this.props.model.value}
       />
     );

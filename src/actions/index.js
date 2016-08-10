@@ -1,4 +1,4 @@
-import makeActionCreator from '../utils/makeActionCreator';
+import { makeActionCreator } from '../utils';
 
 export const INIT_FORM = 'INIT_FORM';
 export const FIELD_VALUE_CHANGED = 'FIELD_VALUE_CHANGED';
@@ -13,5 +13,5 @@ export const handleUserInput = makeActionCreator(FIELD_VALUE_CHANGED, 'formKey',
 export const addItem = makeActionCreator(ADD_ITEM, 'formKey', 'pos', 'itemType');
 export const removeItem = makeActionCreator(REMOVE_ITEM, 'formKey', 'pos', 'itemType');
 export const swapItems = makeActionCreator(SWAP_ITEMS, 'formKey', 'fPos', 'sPos');
-export const addItemField = makeActionCreator(ADD_ITEM_FIELD, 'formKey', 'itemIndex', 'fieldName');
+export const addItemField = makeActionCreator(ADD_ITEM_FIELD, 'formKey', 'itemIndex', 'fieldName', 'defaultValue');
 export const removeItemField = makeActionCreator(REMOVE_ITEM_FIELD, 'formKey', 'itemIndex', 'fieldName');

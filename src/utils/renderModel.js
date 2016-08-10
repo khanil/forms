@@ -2,7 +2,7 @@ import React from 'react';
 import * as itemType from './itemTypes';
 import InputGroup from '../components/InputGroup';
 import Delimeter from '../components/Delimeter';
-import MultipleInput from '../components/MultipleInput';
+import Image from '../components/Image';
 import renderInput from './renderInput';
 
 
@@ -27,6 +27,9 @@ export default function renderModel(model) {
 
 			case itemType.DELIMETER :
 				return <Delimeter key={i} model={item}/>
+
+			case itemType.IMAGE :
+				return <Image key={i} model={item}/>
 
 			default:
 				console.error(`Unknown scheme item type: ${type}.`);

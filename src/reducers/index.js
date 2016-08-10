@@ -11,24 +11,20 @@ const scheme = {
 	title: 'Моя форма',
 	items: [
 		{
-			_id: '1232',
 			_type: 'question',
 			title: 'Первый вопрос',
 			type: 'datetime',
 		},
 		{
-			_id: '1234',
 			_type: 'question',
 			title: 'Второй вопрос',
 			type: 'integer',
 		},
 		{
-			_id: '1235',
 			_type: 'delimeter',
 			title: 'Разделитель тут',
 		},
 		{
-			_id: '1236',
 			_type: 'question',
 			title: 'Третий вопрос',
 			type: 'select',
@@ -40,7 +36,6 @@ const scheme = {
 			]
 		},
 		{
-			_id: '1237',
 			_type: 'question',
 			title: 'Четвертый вопрос',
 			type: 'integer',
@@ -84,12 +79,11 @@ export default function forms (state = {}, action) {
 
 			const items = state.forms[formKey].items;
 			const itemsCopy = items.slice();
-			const newItem = Object.assign({}, itemDefaults[itemType.toUpperCase()], { _id: Date.now() });
+			const newItem = Object.assign({}, itemDefaults[itemType.toUpperCase()]);
 
 			itemsCopy.splice(pos, 0, newItem);
 
 			const newState = nestedObject.setProperty(state, ['forms', formKey], 'items', itemsCopy);
-			console.log(itemsCopy);
 			return newState;
 		}
 
@@ -104,7 +98,6 @@ export default function forms (state = {}, action) {
 			itemsCopy.splice(pos, 1);
 
 			const newState = nestedObject.setProperty(state, ['forms', formKey], 'items', itemsCopy);
-			console.log(itemsCopy);
 			return newState;
 		}
 
@@ -122,7 +115,6 @@ export default function forms (state = {}, action) {
 			itemsCopy[fPos] = helper;
 
 			const newState = nestedObject.setProperty(state, ['forms', formKey], 'items', itemsCopy);
-			console.log(itemsCopy);
 			return newState;
 		}
 
@@ -130,10 +122,12 @@ export default function forms (state = {}, action) {
 			const {
 				formKey,
 				itemIndex,
-				fieldName
+				fieldName,
+				defaultValue
 			} = action;
 
-			const newState = nestedObject.setProperty(state, ['forms', formKey, 'items', itemIndex], fieldName, '');
+			const newState = nestedObject.setProperty(state, ['forms', formKey, 'items', itemIndex], fieldName,
+				(defaultValue !== undefined && defaultValue !== null) ? defaultValue : '');
 			return newState;
 		}
 

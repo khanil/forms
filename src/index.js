@@ -12,3 +12,10 @@ render(
   </Provider>,
   document.getElementById('root')
 );
+
+/**
+ * Module export
+ */
+export Form from './containers/Form';
+export FormGenerator from './containers/FormGenerator';
+export forms from './reducers';

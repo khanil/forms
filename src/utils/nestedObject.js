@@ -77,8 +77,6 @@ function recursionDel(obj, path, i, prop) {
       newArray.splice(prop, 1);
       return newArray;
     } else {
-      console.log(obj);
-      console.log(prop);
       const newObj = Object.assign({}, obj);
       delete newObj[prop];
       return newObj;

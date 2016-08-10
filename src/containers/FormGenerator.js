@@ -3,8 +3,11 @@ import { connect } from 'react-redux';
 
 import Form from './Form';
 import FormComponent from '../components/FormComponent';
-import QuestionGenerator from '../components/QuestionGenerator';
-import DelimeterGenerator from '../components/DelimeterGenerator';
+import {
+  QuestionGenerator,
+  DelimeterGenerator,
+  ImageGenerator
+} from '../components/generators';
 import * as nestedObject from '../utils/nestedObject';
 import * as itemTypes from '../utils/itemTypes';
 import * as inputType from '../utils/inputTypes';
@@ -32,7 +35,6 @@ const scheme = {
 }
 
 const defaultQuestion = itemDefaults.QUESTION;
-defaultQuestion._id = 0;
 
 const initialState = {
   title: '',
@@ -40,6 +42,8 @@ const initialState = {
     defaultQuestion
   ]
 }
+
+const refPrefix = 'itemGenerator_';
 
 /**
  * Container component that builds form scheme in redux state
@@ -56,19 +60,10 @@ class FormGenerator extends Component {
     this.getFieldValue = this.getFieldValue.bind(this);
     this.addItemField = this.addItemField.bind(this);
     this.removeItemField = this.removeItemField.bind(this);
+    this.submitHandler = this.submitHandler.bind(this);
+    this.checkGeneratorValidity = this.checkGeneratorValidity.bind(this);
 
     this.renderCounter = 0;
-  }
-
-  componentWillReceiveProps(nextProps) {
-    // console.log('FormGenerator previousProps:');
-    // console.log(this.props);
-    // console.log('FormGenerator nextProps:');
-    // console.log(nextProps);
-    // const isEqual = equal(this.props, nextProps);
-    // console.log(`Equal? -${isEqual}`);
-    // console.log(' ');
-    // this.state.model = this.buildModel(this.props.scheme);
   }
 
   /**
@@ -93,12 +88,42 @@ class FormGenerator extends Component {
     this.props.handleUserInput(this._formKey, fieldKey, localPath, value);
   }
 
-  addItemField(itemIndex, fieldName) {
-    this.props.addItemField(this._formKey, itemIndex, fieldName);
+  addItemField(itemIndex, fieldName, defaultValue) {
+    this.props.addItemField(this._formKey, itemIndex, fieldName, defaultValue);
   }
 
   removeItemField(itemIndex, fieldName) {
     this.props.removeItemField(this._formKey, itemIndex, fieldName);
+  }
+
+  /**
+   * checks are all input fields valid
+   * @return {boolean}
+   */
+  checkGeneratorValidity() {
+    //all item generators and form header generator
+    const formComponentCounter = this.props._items.length + 1;
+    let i = 0;
+    for (i; i < formComponentCounter; i++) {
+      if (this.refs[refPrefix + i].checkFormValidity() === false)
+        return false;
+    }
+    return true;
+  }
+
+  submitHandler() {
+    const isFormValid = this.checkGeneratorValidity();
+    console.log(`Generator valid? -${isFormValid}`);
+
+    if (!isFormValid)
+      return;
+
+    if (!this.props.onSubmit)
+      console.error('onSubmit function does\'nt provided as a prop to FormGenerator component');
+    else
+      this.props.onSubmit(this.props._scheme);
+
+    alert(JSON.stringify(this.props._scheme, "", 4));
   }
 
   /**
@@ -114,15 +139,27 @@ class FormGenerator extends Component {
       //define the type of generator component
       const type = item._type;
 
+      const props = {
+        key: i,
+        index: i,
+        fields: item,
+        path: `items.${i}`,
+        ref: `${refPrefix}${i+1}`,
+        addField: (fieldName, defaultValue) => { this.addItemField(i, fieldName, defaultValue) },
+        removeField: (fieldName) => { this.removeItemField(i, fieldName) },
+        getFieldValue: this.getFieldValue,
+        setFieldValue: this.setFieldValue
+      }
+
       switch (type) {
         case itemTypes.QUESTION :
-          return <QuestionGenerator key={i} index={i} fields={item} setFieldValue={this.setFieldValue}
-                   getFieldValue={this.getFieldValue} addField={(fieldName) => { this.addItemField(i, fieldName) } } 
-                   removeField={(fieldName) => { this.removeItemField(i, fieldName) } } path={`items.${i}`}/>
+          return <QuestionGenerator {...props}/>
 
         case itemTypes.DELIMETER :
-          return <DelimeterGenerator key={i}  fields={item} setFieldValue={this.setFieldValue}
-                   getFieldValue={this.getFieldValue} path={`items.${i}`}/>
+          return <DelimeterGenerator {...props}/>
+
+        case itemTypes.IMAGE :
+          return <ImageGenerator {...props}/>
 
         default:
           console.error(`Unknown scheme item type: ${type}.`);
@@ -131,20 +168,23 @@ class FormGenerator extends Component {
   }
 
   render() {
-    // console.log(' ');
-    // console.log('Generator render tymes: ' + ++this.renderCounter);
-    // console.log(' ');
-
     return (
       <div>
-        <FormComponent scheme={scheme} setFieldValue={this.setFieldValue} getFieldValue={this.getFieldValue} />
+        <FormComponent ref={`${refPrefix}0`} scheme={scheme} setFieldValue={this.setFieldValue} getFieldValue={this.getFieldValue} />
 
         {this.renderItemGenerators()}
 
-        <button type="button" className="btn btn-default" onClick={() => this.props.addItem(this._formKey, +this.props.title, 'question')}>Q+</button>
-        <button type="button" className="btn btn-default" onClick={() => this.props.addItem(this._formKey, +this.props.title, 'delimeter')}>D+</button>
+        <div className='form-group'>
+        <button type="button" className="btn btn-default" onClick={() => this.props.addItem(this._formKey, this.props._items.length, 'question')}>Q+</button>
+        <button type="button" className="btn btn-default" onClick={() => this.props.addItem(this._formKey, this.props._items.length, 'delimeter')}>D+</button>
+        <button type="button" className="btn btn-default" onClick={() => this.props.addItem(this._formKey, this.props._items.length, 'image')}>I+</button>
         <button type="button" className="btn btn-default" onClick={() => this.props.removeItem(this._formKey, +this.props.desc)}>-</button>
         <button type="button" className="btn btn-default" onClick={() => this.props.swapItems(this._formKey, +this.props.title, +this.props.desc)}>o</button>
+        </div>
+
+        <div className='form-group'>
+          <button type="button" className="btn btn-primary" onClick={this.submitHandler}>Сохранить</button>
+        </div>
       </div>
     );
   }
