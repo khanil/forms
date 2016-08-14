@@ -1,0 +1,58 @@
+{
+  "name": "react-super-forms",
+  "version": "1.0.0",
+  "description": "React form components for building forms",
+  "main": "lib/index.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "npm run build:dist && npm run build:min && npm run build:lib",
+    "build:dist": "set WEBPACK_ENV=dev&& webpack --progress --colors",
+    "build:min": "set WEBPACK_ENV=build&& webpack --progress --colors",
+    "build:lib": "rimraf lib && babel src --out-dir lib --ignore index_test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khanil/forms.git"
+  },
+  "keywords": [
+    "react",
+    "reactjs",
+    "redux",
+    "forms"
+  ],
+  "author": "Slava Khanilo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khanil/forms/issues"
+  },
+  "homepage": "https://github.com/khanil/forms#readme",
+  "dependencies": {
+    "deep-equal": "^1.0.1",
+    "moment": "^2.14.1",
+    "react-redux": "^4.4.5",
+    "react-select": "^1.0.0-beta14",
+    "react-widgets": "^3.4.3",
+    "redux": "^3.5.2",
+    "redux-thunk": "^2.1.0"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0 || ^15.0.0-0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.11.4",
+    "babel-core": "^6.0.20",
+    "babel-eslint": "^4.1.3",
+    "babel-loader": "^6.0.1",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-remove-comments": "^2.0.0",
+    "babel-preset-es2015": "^6.0.15",
+    "babel-preset-react": "^6.0.15",
+    "babel-preset-stage-0": "^6.0.15",
+    "react": "^0.14.6",
+    "react-dom": "^0.14.6",
+    "react-hot-loader": "^1.3.0",
+    "rimraf": "^2.5.4",
+    "webpack": "^1.12.2",
+    "webpack-dev-server": "^1.12.1"
+  }
+}

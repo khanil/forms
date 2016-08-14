@@ -74,10 +74,12 @@ Form.propTypes = {
 }
 
 const mapStateToProps = (state, ownProps) => {
+  const scheme = ownProps.scheme == undefined ? state.forms['scheme'] : ownProps.scheme;
+
   return {
     // form: state.forms[ownProps._formKey],
     _forms: state.forms,
-    scheme: state.forms['scheme']
+    scheme
   }
 };
 
