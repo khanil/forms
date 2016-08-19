@@ -2,6 +2,47 @@ import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import FormGenerator from './FormGenerator';
 import Form from './Form';
+import { fromJS } from 'immutable';
+
+const scheme = fromJS({
+ title: 'Моя форма',
+ items: [
+   {
+     _type: 'question',
+     title: 'Первый вопрос',
+     type: 'datetime',
+     required: true
+   },
+   {
+     _type: 'question',
+     title: 'Второй вопрос',
+     type: 'integer',
+     required: true
+   },
+   {
+     _type: 'delimeter',
+     title: 'Разделитель тут',
+   },
+   {
+     _type: 'question',
+     title: 'Третий вопрос',
+     type: 'select',
+     required: true,
+     options: [
+       '1',
+       '2',
+       '3',
+       '4'
+     ]
+   },
+   {
+     _type: 'question',
+     title: 'Четвертый вопрос',
+     type: 'financial',
+     required: true
+   }
+ ]
+});
 
 export default class App extends Component {
   constructor(props) {
@@ -13,6 +54,7 @@ export default class App extends Component {
     }
 
     this.clickHandler = this.clickHandler.bind(this);
+    this.submitHandler = this.submitHandler.bind(this);
   }
 
   componentDidMount() {
@@ -40,10 +82,14 @@ export default class App extends Component {
     });
   }
 
+  submitHandler(ref) {
+    this.refs[ref].getWrappedInstance().submitHandler();
+  }
+
   render() {
     const generatorClass = !this.state.form ? 'col-md-11' : this.state.generator ? 'col-md-6' : 'col-md-1';
     const formClass = !this.state.generator ? 'col-md-11' : this.state.form ? 'col-md-6' : 'col-md-1';
- 
+  
     return (
       <div className='container-fluid'>
         <div className="row">
@@ -58,7 +104,8 @@ export default class App extends Component {
               </button>
             </div>
             <div className="row" hidden={this.state.generator ? '' : 'true'}>
-              <FormGenerator />
+              <FormGenerator ref='generator' previewKey='myForm'/>
+              <button type="button" className="btn btn-primary" onClick={() => this.submitHandler('generator')}>Сохранить</button>
             </div>
           </div>
           <div className={'live-form-container ' + formClass}>
@@ -72,7 +119,8 @@ export default class App extends Component {
               </button>
             </div>
             <div className="row" hidden={this.state.form ? '' : 'true'}>
-              <Form formKey='myForm' />
+              <Form ref='myForm' formKey='myForm' />
+              <button type="button" className="btn btn-primary" onClick={() => this.submitHandler('myForm')}>Отправить</button>
             </div>
           </div>
         </div>

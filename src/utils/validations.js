@@ -15,10 +15,12 @@ export function composeValidators() {
 		for (let i = 0; i < fns.length; i++) {
 			result = fns[i](value);
 
-			if ( typeof(result) === 'object' )
+			if ( result.valid == false )
 				return result;
 		}
-		return true;
+		return {
+			valid: true
+		}
 	}
 }
 
@@ -30,9 +32,12 @@ export function composeValidators() {
 export function notEmpty(value) {
 	return (!value || value.length === 0)
 		? {
-			message: 'Поле не заполнено'
+			valid: false,
+			error: 'Поле не заполнено'
 		}
-		: true;
+		: {
+			valid: true
+		};
 }
 
 /**
@@ -42,9 +47,12 @@ export function notEmpty(value) {
  */
 export function isNumber(value) {
 	return (/^\d+$/).test(value)
-		? true
+		? {
+			valid: true
+		}
 		: {
-			message: 'В данное поле необходимо ввести число'
+			valid: false,
+			error: 'В данное поле необходимо ввести число'
 		};
 };
 
@@ -55,9 +63,12 @@ export function isNumber(value) {
  */
 export function isInteger(value) {
 	return (/^[0-9]+$/).test(value)
-		? true
+		? {
+			valid: true
+		}
 		: {
-			message: 'В данное поле необходимо ввести целое число'
+			valid: false,
+			error: 'В данное поле необходимо ввести целое число'
 		};
 };
 
@@ -68,9 +79,12 @@ export function isInteger(value) {
  */
 export function isFloat(value) {
 	return (/^[0-9]+[.,][0-9]+$/).test(value)
-		? true
+		? {
+			valid: true
+		}
 		: {
-			message: 'В данное поле необходимо ввести десятичную дробь'
+			valid: false,
+			error: 'В данное поле необходимо ввести десятичную дробь'
 		};
 }
 
@@ -81,8 +95,11 @@ export function isFloat(value) {
  */
 export function isFinancial(value) {
 	return (/^[0-9]+[.,][0-9][0-9]$/).test(value)
-		? true
+		? {
+			valid: true
+		}
 		: {
-			message: 'Обязательно две точки после запятой'
+			valid: false,
+			error: 'Обязательно две точки после запятой'
 		};
 }

@@ -13,18 +13,6 @@ export default class Input extends Component {
 		this.applyChanges = this.applyChanges.bind(this);
 	}
 
-	// componentWillReceiveProps(nextProps) {
-	// 	console.log('Input');
-	// 	const isEqual = equal(this.props.model, nextProps.model);
-	// 	console.log('Old props: ');
-	// 	console.log(this.props.model);
-	// 	console.log('New props: ');
-	// 	console.log(nextProps.model);
-	// 	if (!isEqual) {
-	// 		this.checkValidity(nextProps.model.value.trim());
-	// 	}
-	// }
-
 	changeHandler() {
 		//check if argument is event object
 		const value = ( typeof(arguments[0]) === 'object' )
@@ -92,15 +80,5 @@ export default class Input extends Component {
 }
 
 Input.propTypes = {
-	model: PropTypes.object.isRequired,
-	validateFn: PropTypes.func
-}
-
-if (!String.prototype.trim) {
-	(function() {
-		// Вырезаем BOM и неразрывный пробел
-		String.prototype.trim = function() {
-			return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-		};
-	})();
+	model: PropTypes.object.isRequired
 }

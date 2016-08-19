@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import Input from './Input';
+import { List } from 'immutable';
 import { notEmpty } from '../../utils/validations';
+import bindFunctions from '../../utils/bind-functions';
 
 export default class InputOptions extends Input {
 
@@ -8,36 +10,31 @@ export default class InputOptions extends Input {
     super(props);
 
     this.state = {
-      values: props.model.value
+      values: List(props.model.get(value))
     }
 
-    this.renderFields = this.renderFields.bind(this);
-    this.handlerInput = this.handlerInput.bind(this);
-    this.pushField = this.pushField.bind(this);
-    this.removeField = this.removeField.bind(this);
-    this.applyChanges = this.applyChanges.bind(this);
+    bindFunctions.call(this, ['renderFields', 'handlerInput', 'pushField', 'removeField', 'applyChanges']);
   }
 
   applyChanges(newValue) {
-    this.props.model.value = newValue;
+    this.props.model.get('changeHandler')(newValue);
 
     //checks empty input fields
-    if (this.props.model.validate == 'true' && this.props.model._valid !== false) {
-      if ( newValue.some( (value) => ( !value || value.length === 0) )) {
-        this.props.model._valid = false;
-        this.props.model._error = 'Вариант ответа не может быть пустым';
-      } else {
-        this.props.model._valid = true;
-        delete this.props.model._error;
-      }
-    }
+    // if (this.props.model.validate == 'true' && this.props.model._valid !== false) {
+    //   if ( newValue.some( (value) => ( !value || value.length === 0) )) {
+    //     this.props.model._valid = false;
+    //     this.props.model._error = 'Вариант ответа не может быть пустым';
+    //   } else {
+    //     this.props.model._valid = true;
+    //     delete this.props.model._error;
+    //   }
+    // }
   }
 
   handlerInput(e, fieldIndex) {
     const inputValue = e.target.value;
 
-    const newValuesState = this.state.values.slice();
-    newValuesState[fieldIndex] = inputValue;
+    const newValuesState = this.state.values.set('fieldIndex', inputValue);
 
     this.setState({
       values: newValuesState
@@ -47,35 +44,27 @@ export default class InputOptions extends Input {
   }
 
   pushField() {
-    const newValuesState = this.state.values.slice();
-    console.log(newValuesState);
-    newValuesState.push('');
-
-    this.setState({
-      values: newValuesState
-    });
+    this.setState(({values}) => ({
+      values: values.push('')
+    }));
 
     this.applyChanges(newValuesState);
   }
 
   removeField(index) {
     //must be at least one option input field
-    if (this.state.values.length === 1) 
+    if (this.state.values.size === 1) 
       return;
 
-    const newValuesState = this.state.values.slice();
-
-    newValuesState.splice(index, 1);
-
-    this.setState({
-      values: newValuesState
-    });
+    this.setState(({values}) => ({
+      values: values.delete(index)
+    }));
 
     this.applyChanges(newValuesState);
   }
 
   renderFields() {
-    const values = this.props.model.value;
+    const values = this.props.model.get(value);
 
     if ( !Array.isArray(values) ) {
       console.error('InputOptions must recieve array of values');
@@ -96,13 +85,6 @@ export default class InputOptions extends Input {
   }
 
   render() {
-    const {
-      model
-    } =  this.props;
-
-    console.log('Options model:');
-    console.log(model);
-
     return (
       <div>
         {this.renderFields()}

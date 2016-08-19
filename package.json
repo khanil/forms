@@ -28,7 +28,10 @@
   "homepage": "https://github.com/khanil/forms#readme",
   "dependencies": {
     "deep-equal": "^1.0.1",
+    "deepmerge": "^0.2.10",
+    "immutable": "^3.8.1",
     "moment": "^2.14.1",
+    "react-addons-shallow-compare": "^15.3.0",
     "react-redux": "^4.4.5",
     "react-select": "^1.0.0-beta14",
     "react-widgets": "^3.4.3",

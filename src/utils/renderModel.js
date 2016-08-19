@@ -8,14 +8,14 @@ import renderInput from './renderInput';
 
 /**
  * renders react components based on model
- * @param  {object} model 
+ * @param  {object} model
  * @return {array of react-elements}
  */
 export default function renderModel(model) {
 	let questionsCounter = 0;
 
 	return model.map( (item, i) => {
-		const type = item._type;
+		const type = item.get('_type');
 
 		switch (type.toLowerCase()) {
 			case itemType.QUESTION :

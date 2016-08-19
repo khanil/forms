@@ -21,14 +21,10 @@ function getInputByType(type, model, index) {
 	switch (type.toLowerCase()) {
 		case inputType.STRING :
 		case inputType.PARAGRAPH :
-			return <InputString model={model}></InputString>;
-
 		case inputType.INTEGER :
-			return <InputInteger model={model}></InputInteger>;
 		case inputType.FLOAT :
-			return <InputFloat model={model}></InputFloat>;
 		case inputType.FINANCIAL :
-			return <InputFinancial model={model}></InputFinancial>;
+			return <InputString model={model}></InputString>;
 
 		case inputType.SELECT :
 			return <InputSelect model={model}></InputSelect>;
@@ -56,6 +52,6 @@ function getInputByType(type, model, index) {
  * @return {[type]}       [description]
  */
 export default function renderInput(model, index) {
-	const type = model.type;
+	const type = model.get('type');
 	return getInputByType(type, model, index);
 }

@@ -8,10 +8,8 @@ import * as inputType from '../utils/inputTypes';
 export const QUESTION = {
   _type: itemTypes.QUESTION,
   title: 'Новый вопрос',
-  type: 'string',
-  validate: 'true'
-  // title: 'Вопрос',
-  // type: inputType.INTEGER
+  type: inputType.STRING,
+  required: true
 }
 
 export const DELIMETER = {
@@ -23,4 +21,24 @@ export const IMAGE = {
   _type: itemTypes.IMAGE,
   title: 'Описание изображения',
   link: ''
+}
+
+//TODO: kkal
+export function get(type) {
+  let item;
+  switch( type.toLowerCase() ) {
+    case itemTypes.QUESTION :
+      item = QUESTION;
+      break;
+    case itemTypes.DELIMETER :
+      item = DELIMETER;
+      break;
+    case itemTypes.IMAGE :
+      item = IMAGE;
+      break;
+    default:
+      return null;
+  }
+  item._id = Math.random();
+  return item;
 }

@@ -8,7 +8,7 @@ function getSchemeTemplate() {
       _type: 'question',
       name: 'title',
       title: 'Сопроводительный текст',
-      type: inputTypes.INTEGER
+      type: inputTypes.STRING
     },
     {
       _type: 'question',
@@ -19,6 +19,15 @@ function getSchemeTemplate() {
   ];
 }
 
+/**
+ * Presentational component that renders input fields specified in fields prop
+ * @param {object} fields object passed from store, specified which input fields must be rendered
+ * @param {func} setFieldValue transmits user input changes to store
+ * @param {func} getFieldValue extracts user input value from store
+ * @param {func} addField inserts new input field in store
+ * @param {func} removeField removes input field from store
+ * @param {string} path util passed in setFieldValue and getFieldValue func
+ */
 export default class ImageGenerator extends ItemGenerator {
   constructor(props) {
     super(props, getSchemeTemplate);
@@ -36,6 +45,10 @@ export default class ImageGenerator extends ItemGenerator {
 }
 
 ImageGenerator.propTypes = {
-  setFieldValue: PropTypes.func,
-  getFieldValue: PropTypes.func
+  fields: PropTypes.object.isRequired,
+  setFieldValue: PropTypes.func.isRequired,
+  getFieldValue: PropTypes.func.isRequired,
+  path: PropTypes.string.isRequired,
+  addField: PropTypes.func,
+  removeField: PropTypes.func
 }

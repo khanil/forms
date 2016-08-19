@@ -7,6 +7,9 @@ export const REMOVE_ITEM = 'REMOVE_ITEM';
 export const SWAP_ITEMS = 'SWAP_ITEMS';
 export const ADD_ITEM_FIELD = 'ADD_ITEM_FIELD';
 export const REMOVE_ITEM_FIELD = 'REMOVE_ITEM_FIELD';
+export const ADD_ITEM_LIVE = 'ADD_ITEM_LIVE';
+export const REMOVE_ITEM_LIVE = 'REMOVE_ITEM_LIVE';
+export const SWAP_ITEMS_LIVE = 'SWAP_ITEMS_LIVE';
 
 export const initForm = makeActionCreator(INIT_FORM, 'formKey', 'initialState');
 export const handleUserInput = makeActionCreator(FIELD_VALUE_CHANGED, 'formKey', 'fieldKey', 'localPath', 'value');
@@ -15,3 +18,8 @@ export const removeItem = makeActionCreator(REMOVE_ITEM, 'formKey', 'pos', 'item
 export const swapItems = makeActionCreator(SWAP_ITEMS, 'formKey', 'fPos', 'sPos');
 export const addItemField = makeActionCreator(ADD_ITEM_FIELD, 'formKey', 'itemIndex', 'fieldName', 'defaultValue');
 export const removeItemField = makeActionCreator(REMOVE_ITEM_FIELD, 'formKey', 'itemIndex', 'fieldName');
+
+//Live Form Generator preview
+export const addItemLive = makeActionCreator(ADD_ITEM_LIVE, 'formKey', 'previewKey', 'pos', 'itemType');
+export const removeItemLive = makeActionCreator(REMOVE_ITEM_LIVE, 'formKey', 'previewKey', 'pos', 'itemType');
+export const swapItemsLive = makeActionCreator(SWAP_ITEMS_LIVE, 'formKey', 'previewKey', 'fPos', 'sPos');
