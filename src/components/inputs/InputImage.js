@@ -10,24 +10,23 @@ export default class InputInteger extends Component {
 
   changeHandler(e) {
     var oFReader = new FileReader();
-    console.log(e.target.files[0].value);
     oFReader.readAsDataURL(e.target.files[0]);
 
     oFReader.onload = (oFREvent) => {
-      this.props.model.value = oFREvent.target.result;
+      this.props.model.get('changeHandler')(oFREvent.target.result);
     };
   };
 
   render() {
     const {
-      model
-    } = this.props;
+      value
+    } =  this.props.model.toObject();
 
     return (
       <div>
         {
-          model.value
-          ? <img style={{width: '100px', height: '100px'}} src={model.value}/>
+          value
+          ? <img style={{width: '100px', height: '100px'}} src={value}/>
           : ''
         }
         <form>

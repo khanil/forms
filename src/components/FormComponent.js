@@ -1,16 +1,15 @@
 import React, { Component, PropTypes } from 'react';
-import equal from 'deep-equal';
-import {
-	renderModel,
-	itemTypes,
-	nestedObject 
-} from '../utils';
+import { renderModel, itemTypes } from '../utils';
+import { Map, List, fromJS } from 'immutable';
+import * as typeValidations from '../utils/validations';
+import bindFunctions from '../utils/bind-functions';
 
 /**
  * Presentational component that renders input fields based on provided scheme
  * @param {object} scheme
  * @param {func} setFieldValue transmits user input changes to store
  * @param {func} getFieldValue extracts user input value from store
+ * @param {string} path util passed in setFieldValue and getFieldValue func
  */
 export default class FormComponent extends Component {
 
@@ -18,58 +17,63 @@ export default class FormComponent extends Component {
 		super(props);
 
 		this.state = {
-			model: []
-		};
+			model: List([])
+		}
 
-		this.scheme;
-
-		this.checkFormValidity = this.checkFormValidity.bind(this);
-		this.setScheme = this.setScheme.bind(this);
-		this.renderCounter = 0;
+		bindFunctions.call(this, ['checkFormValidity']);
 	}
 
 	componentWillMount() {
-		this.scheme = this.props.scheme;
 		//model is the improved scheme that has properties to control the input fields
-		this.state.model = this.buildModel(this.props.scheme);
-		// console.log('Builded model:');
-		// console.log(this.state.model);
+		const model = this.buildModel(this.props.scheme);
+		this.setState({
+			model: model
+		});
+		console.log(`FormComponent #${this.props.index}. Just created.`);
 	}
 
 	componentWillReceiveProps(nextProps) {
-		const isEqual = equal(this.props.scheme.items, nextProps.scheme.items);
-		if (!isEqual) {
-			// console.log('Scheme changed!!');
-			const newModel = this.updateModel(nextProps.scheme, this.props.scheme);
+		if (this.props.scheme.get('items') === nextProps.scheme.get('items')) {
+
+			if (this.props.path !== nextProps.path) {
+				console.log(`FormComponent #${this.props.index}. Supplied path changed.`);
+			}
+
+			console.log(`FormComponent #${this.props.index}. Nothing changed.`);
+			return;
+		}
+
+		const items = this.props.scheme.get('items');
+		const nextItems = nextProps.scheme.get('items');
+		const equal = nextItems.equals(items);
+		const updated = !equal;
+
+		if (updated) {
+			console.log(`FormComponent #${this.props.index}. Scheme items changed, rebuild model...`);
+			const newModel = this.updateModel(items, nextItems, this.state.model);
+			console.log('New model:');
+			console.log(newModel.toJS());
+
 			this.setState({
 				model: newModel
 			});
-			// console.log('New updated model:');
-			// console.log(newModel);
 		}
-
-		this.scheme = nextProps.scheme;
 	}
 
-	setScheme(scheme) {
-		this.scheme = scheme;
-	}
-
-	checkFormValidity() {
-		return this.state.model.every((item) => (
-			item._valid !== false || item._type !== itemTypes.QUESTION
-		));
-	}
-
+	/**
+	 * builds model based on provided scheme
+	 * @param  {object} scheme
+	 * @return {object}
+	 */
 	buildModel(scheme) {
-		const localPath = (this.props.path !== undefined) ? this.props.path : null;
+		//next available index of responses array (or object)
 		let availableRKey = 0;
 
-		return scheme.items.map((item) => {
-			if (item._type === itemTypes.QUESTION) {
-				const needRKey = (item.name === undefined);
+		return scheme.get('items').map((item, i) => {
+			if (item.get('_type') === itemTypes.QUESTION) {
+				const needRKey = (item.get('name') === undefined);
 
-				return this.buildQModel(item, localPath, needRKey ? availableRKey++ : null);
+				return this.buildQModel(item, i, needRKey ? availableRKey++ : null);
 			}
 
 			return item;
@@ -77,174 +81,118 @@ export default class FormComponent extends Component {
 	}
 
 	/**
-	 * builds model for question item
-	 * @param  {object} scheme
+	 * builds model for question item based on item scheme
+	 * @param  {object} scheme question scheme
 	 * @return {object}
 	 */
-	buildQModel(qScheme, localPath, respKey) {
-		const qModel = Object.assign({}, qScheme);
-		//set pointer to element in responses object, where the value of input field will be stored
-		qModel._responseKey = (qModel.name) ? qModel.name : respKey;
-		//dynamic changing value of field
-		Object.defineProperty(qModel, "value", { 
-			get: () => ( this.props.getFieldValue(localPath, qModel._responseKey) ),
-			set: (value) => { this.props.setFieldValue(localPath, qModel._responseKey, value) },
-			enumerable: true
-		});
-		//validation status
-		qModel._valid = undefined;
-		return qModel;
+	buildQModel(qScheme, index, respKey) {
+		const localPath = (this.props.path !== undefined) ? this.props.path : null;
+
+		const scheme = qScheme.toObject();
+		const _responseKey = scheme.name ? scheme.name : respKey;
+		const value = this.props.getFieldValue(localPath, _responseKey);
+		const {valid, error} = checkValidity(value);
+		const pristine = true;
+
+		function changeHandler() {
+			//check if argument is event object
+			const value = ( arguments[0].target !== undefined )
+				? arguments[0].target.value
+				: arguments[0];
+
+			//responses store local path may change in time, so we need always referense its value from props
+			const localPath = (this.props.path !== undefined) ? this.props.path : null;
+
+			this.props.setFieldValue(localPath, _responseKey, value);
+
+			const valid = checkValidity(value);
+
+			this.setState(({model}) => ({
+				model: model.mergeIn([index], {
+					value,
+					pristine: false,
+					...valid
+				})
+			}));
+		}
+
+		function checkValidity(value) {
+			const type = scheme.type;
+			let validations = [];
+
+			const typeValidateFn = typeValidations['is' + type[0].toUpperCase() + type.slice(1)];
+			if (typeValidateFn)
+				validations.push(typeValidateFn);
+
+			if (scheme.required)
+				validations = [typeValidations.notEmpty].concat(validations);
+
+			const valid = typeValidations.composeValidators(...validations)(value);
+			if (!valid.error)
+				valid.error = '';
+			return valid;
+		}
+
+		const model = Object.assign({
+			_responseKey,
+			value,
+			valid,
+			error,
+			pristine,
+			changeHandler: changeHandler.bind(this)
+		}, scheme);
+
+		return fromJS(model);
 	}
 
-	/**
-	 * updates model based on scheme changes
-	 * @param  {object} scheme     new scheme
-	 * @param  {object} prevScheme previous scheme
-	 * @param  {object} model      current model
-	 * @return {object}            new model
-	 */
-	updateModel(scheme, prevScheme) {
-		// console.log('New scheme:');
-		// console.log(scheme);
-		// console.log('Current model:');
-		// console.log(model);
+	checkFormValidity() {
+		//check validity of all items with type = question
+		const isFormValid = this.state.model.every((item) => (item.get('valid') || item.get('_type') != itemTypes.QUESTION));
 
-		const model = this.state.model;
+		//make all fields touched
+		const newModel = this.state.model.map((item) => (item.set('pristine', false)));
+		this.setState({
+			model: newModel
+		});
 
-		switch (scheme.items.length - prevScheme.items.length) {
-			/**
-			 * something changed in one of scheme items object
-			 */
-			case 0: {
-				//console.log('something changed in one of scheme items object');
+		return isFormValid;
+	}
 
-				//find changed scheme item object
-				let i = 0;
-				while ( equal(scheme.items[i], prevScheme.items[i]) )
-					i++;
-				let oldItemLength = 0;
-				let newItemLength = 0;
-				for (let key in scheme.items[i])
-					newItemLength++;
-				for (let key in prevScheme.items[i])
-					oldItemLength++;
-				switch (newItemLength - oldItemLength) {
-					//new property added or
-					//property value changed
-					case 1:
-					case 0: {
-						const newItem = Object.assign(model[i], scheme.items[i]);//assignWD({}, model[i], scheme.items[i]);
-						model[i] = newItem;
-						return model;
+	updateModel(oldScheme, newScheme, model) {
+		const localPath = (this.props.path !== undefined) ? this.props.path : null;
+		//next available index of responses array (or object)
+		let availableRKey = 0;
+
+		return newScheme.map((item, i) => {
+			if (item.get('_type') === itemTypes.QUESTION) {
+				const needRKey = (item.get('name') === undefined);
+				//check if this item was added in previous model state
+				//and attach to new model all old behaviour properties
+				let pos;
+				const wasAdded = oldScheme.some((oldItem, i) => {
+					if (oldItem === item || oldItem.get('_id') === item.get('_id')) {
+						pos = i;
+						return true;
 					}
+				});
 
-					//some property deleted
-					case -1: {
-						const localPath = (this.props.path !== undefined) ? this.props.path : null;
-						//find deleted property name
-						let key;
-						for (key in prevScheme.items[i]) {
-							if (scheme.items[i][key] === undefined)
-								break;
-						}
-						//console.log(`deleted key: ${key}`);
-						// const newModel = Object.assign({}, model[i]);//assignWD({}, model[i]);
-						// delete newModel[key];
-						// const newItem = this.buildQModel(scheme.items[i], localPath, model[i]._responseKey);
-						// // newItem._valid = model[i]._valid;
-						delete model[i][key];
-						return model;
-					}
+				const newQModel = this.buildQModel(item, i, needRKey ? availableRKey++ : null);
 
-					default: {
-						console.error('wtf?!');
-						return model;
-					}
-				}
+				console.log(`items was added? -${wasAdded}`);
 
+				if (wasAdded)
+					return newQModel.set('pristine', model.getIn([pos, 'pristine']));
 
-				console.error('I am not write code here yet!');
-				return model;
+				return newQModel;
 			}
 
-			/**
-			 * new scheme item added
-			 */
-			case 1: {
-				//console.log('new scheme item added');
-
-				let newModel = [];
-				let i = 0;
-				//search for added item and accumulating all previous items into new model
-				//while (model[i] !== undefined && scheme.items[i] !== undefined && scheme.items[i]._id === model[i]._id) {
-				while (model[i] !== undefined && scheme.items[i] !== undefined && equal(scheme.items[i], prevScheme.items[i])) {
-					const itemModel = model[i];
-					newModel.push(itemModel);
-					i++;
-				}
-				const addedItem = scheme.items[i];
-				//if added item type not a question, simply add it between model items
-				if (addedItem._type !== itemTypes.QUESTION) {
-					return newModel.concat( [addedItem], model.slice(i) );
-				}
-				//Added item type is a question
-				const localPath = (this.props.path !== undefined) ? this.props.path : null;
-				const hasName = (addedItem.name !== undefined);
-				const newQModel = this.buildQModel(addedItem, localPath, hasName ? null : i);
-				//if added item nameless, we need to move response keys in remaining namelesses items right by one
-				if (!hasName) {
-					newModel = newModel.concat( [newQModel], model.slice(i) );
-					i = i + 1;
-					for (i; i < newModel.length; i++) {
-						if (newModel[i].name === undefined && newModel[i]._type === itemTypes.QUESTION)
-							++newModel[i]._responseKey;
-					}
-					return newModel;
-				} else {
-					//else simply add it between model items
-					return newModel.concat( [newQModel], model.slice(i) );
-				}
-			}
-
-			/**
-			 * one of scheme items was deleted
-			 */
-			case -1: {
-				//console.log('one of scheme items was deleted');
-
-				let newModel = [];
-				let i = 0;
-				//search for deleted item and accumulating all previous items into new model
-				//while (model[i] !== undefined && scheme.items[i] !== undefined && scheme.items[i]._id === model[i]._id) {
-				while (model[i] !== undefined && scheme.items[i] !== undefined && equal(scheme.items[i], prevScheme.items[i])) {
-					const itemModel = model[i];
-					newModel.push(itemModel);
-					i++;
-				}
-				const delItem = model[i];
-				//if deleted item type not a question, simply dont include it in new model
-				if (delItem._type !== itemTypes.QUESTION) {
-					return newModel.concat( model.slice(i+1) );
-				}
-				//if deleted item type is a question, we need to move response keys in remaining namelesses items left by one
-				newModel = newModel.concat( model.slice(i+1) );
-				for (i; i < newModel.length; i++) {
-					if (newModel[i].name === undefined && newModel[i]._type === itemTypes.QUESTION)
-						--newModel[i]._responseKey;
-				}
-				return newModel;
-			}
-
-			default: {
-				console.error('wtf?!');
-				return model;
-			}
-		}
+			return item;
+		});
 	}
 
 	render() {
 		const model = this.state.model;
-		const formTitle = this.scheme.title;
+		const formTitle = this.props.scheme.get('title');
 
 		return (
 			<div>
@@ -261,6 +209,7 @@ export default class FormComponent extends Component {
 
 FormComponent.propTypes = {
 	scheme: PropTypes.object.isRequired,
-	setFieldValue: PropTypes.func,
-	getFieldValue: PropTypes.func
+	setFieldValue: PropTypes.func.isRequired,
+	getFieldValue: PropTypes.func.isRequired,
+	path: PropTypes.string
 }

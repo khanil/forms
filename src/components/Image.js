@@ -1,5 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 
+/**
+ * React presentational component which renders form image based on model
+ * @param  {object} model
+ */
 export default class Image extends Component {
 
   constructor(props) {
@@ -8,13 +12,14 @@ export default class Image extends Component {
 
   render() {
     const {
-      model
-    } =  this.props;
+      title,
+      link
+    } = this.props.model.toObject();
 
     return (
       <div className="form-group">
-        <label>{model.title}</label>
-        <img src={model.link} className="img-responsive" alt={model.title} />
+        <label>{title}</label>
+        <img src={link} className="img-responsive" alt={title} />
       </div>
     );
   }

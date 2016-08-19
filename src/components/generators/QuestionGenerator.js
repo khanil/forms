@@ -8,7 +8,8 @@ function getSchemeTemplate() {
       _type: 'question',
       name: 'title',
       title: 'Текст вопроса',
-      type: inputTypes.INTEGER
+      type: inputTypes.STRING,
+      required: true
     },
     {
       _type: 'question',
@@ -17,6 +18,7 @@ function getSchemeTemplate() {
       type: inputTypes.SELECT,
       options: inputTypes.INPUT_TYPES,
       placeholder: 'Выберите формат ответа...',
+      required: true,
       callbacks: {
         [inputTypes.SELECT]: () => this.toggleField('options', [' '])
       }
@@ -40,11 +42,11 @@ function getSchemeTemplate() {
       type: inputTypes.SELECT,
       options: [
         {
-          value: 'true',
+          value: true,
           label: 'Да'
         },
         {
-          value: 'false',
+          value: false,
           label: 'Нет'
         }
       ]
@@ -54,10 +56,12 @@ function getSchemeTemplate() {
 
 /**
  * Presentational component that renders input fields specified in fields prop
- * @param {object} fields points which input fields must be rendered
+ * @param {object} fields object passed from store, specified which input fields must be rendered
  * @param {func} setFieldValue transmits user input changes to store
  * @param {func} getFieldValue extracts user input value from store
- * @param {string} path
+ * @param {func} addField inserts new input field in store
+ * @param {func} removeField removes input field from store
+ * @param {string} path util passed in setFieldValue and getFieldValue func
  */
 export default class QuestionGenerator extends ItemGenerator {
   constructor(props) {
@@ -82,6 +86,10 @@ export default class QuestionGenerator extends ItemGenerator {
 }
 
 QuestionGenerator.propTypes = {
-  setFieldValue: PropTypes.func,
-  getFieldValue: PropTypes.func
+  fields: PropTypes.object.isRequired,
+  setFieldValue: PropTypes.func.isRequired,
+  getFieldValue: PropTypes.func.isRequired,
+  path: PropTypes.string.isRequired,
+  addField: PropTypes.func,
+  removeField: PropTypes.func
 }

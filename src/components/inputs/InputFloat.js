@@ -10,11 +10,11 @@ export default class InputFloat extends Input {
 
   render() {
     const {
-      model
-    } = this.props;
+      value, changeHandler
+    } =  this.props.model.toObject();
 
     return (
-      <input type="text" className="form-control" value={model.value} onChange={this.changeHandler}/>
+      <input type="text" className="form-control" value={value} onChange={changeHandler}/>
     );
   }
 }

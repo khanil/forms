@@ -61,13 +61,13 @@ export default class InputDatetime extends Input {
       return;
     //value as ISO 8601 string
     const value = Moment(date).format();
-    super.changeHandler(value);
+    this.props.model.get('changeHandler')(value);
   }
 
   render() {
     const {
-      model
-    } =  this.props;
+      value
+    } =  this.props.model.toObject();
 
     return (
       <DateTimePicker
@@ -75,7 +75,7 @@ export default class InputDatetime extends Input {
         format={this.displayFormat}
         onChange={this.changeHandler}
         time={this.showTimePicker}
-        value={ model.value ? Moment(model.value).toDate() : null }
+        value={ value ? Moment(value).toDate() : null }
       />
     );
   }

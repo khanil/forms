@@ -9,10 +9,12 @@ export default class InputSelect extends Input {
   }
 
   renderOptions() {
-    const options = this.props.model.options;
-    
+    let options = this.props.model.get('options');
+
     if (options === undefined)
       return [];
+
+    options = options.toJS();
 
     if (typeof(options[0]) === 'string') {
       return options.map( (value) => (
@@ -28,38 +30,39 @@ export default class InputSelect extends Input {
 
   changeHandler(valObj) {
     const value = valObj.value;
-    const prevValue = this.props.model.value;
-    // console.log(`newValue: ${value}, oldValue: ${prevValue}`);
+    const prevValue = this.props.model.get('value');
+    console.log(`newValue: ${value}, oldValue: ${prevValue}`);
 
-    if (this.props.model.callbacks !== undefined) {
+    const callbacks = this.props.model.get('callbacks');
+    if (callbacks !== undefined) {
       if (value !== prevValue) {
         // console.log('toggle');
-        if (this.props.model.callbacks[value] !== undefined) {
-          this.props.model.callbacks[value]();
+        if (callbacks[value] !== undefined) {
+          callbacks[value]();
         }
-        if (this.props.model.callbacks[prevValue] !== undefined) {
-          this.props.model.callbacks[prevValue]();
+        if (callbacks[prevValue] !== undefined) {
+          callbacks[prevValue]();
         }
       }
     }
 
-    super.changeHandler(value);
+    this.props.model.get('changeHandler')(value);
   }
 
   render() {
     const {
-      model
-    } = this.props;
+      value, placeholder
+    } =  this.props.model.toObject();
 
-    const options = this.renderOptions(this.props.model.options);
+    const options = this.renderOptions(options);
 
     return (
       <Select
         clearable={false}
         options={options}
         onChange={ this.changeHandler }
-        placeholder={ model.placeholder ? model.placeholder : 'Выберите ответ из списка...'}
-        value={this.props.model.value}
+        placeholder={placeholder ? placeholder : 'Выберите ответ из списка...'}
+        value={value} //must be string
       />
     );
   }

@@ -1,5 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 
+/**
+ * React presentational component which renders form delimeter based on model
+ * @param  {object} model
+ */
 export default class Delimeter extends Component {
 
   constructor(props) {
@@ -8,12 +12,12 @@ export default class Delimeter extends Component {
 
   render() {
     const {
-      model
-    } =  this.props;
+      title
+    } = this.props.model.toObject();
 
     return (
       <div className="form-group">
-        <label>{model.title}</label>
+        <label>{title}</label>
         <hr/>
       </div>
     );

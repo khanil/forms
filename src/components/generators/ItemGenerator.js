@@ -1,84 +1,126 @@
-import React, { Component, PropTypes } from 'react';
-import equal from 'deep-equal';
+import React, { Component } from 'react';
 import FormComponent from '../FormComponent';
+import { Map, List, fromJS } from 'immutable';
+import bindFunctions from '../../utils/bind-functions';
 
 /**
  * Presentational component that renders input fields specified in fields prop
- * @param {object} fields points which input fields must be rendered
+ * @param {object} fields object passed from store, specified which input fields must be rendered
  * @param {func} setFieldValue transmits user input changes to store
  * @param {func} getFieldValue extracts user input value from store
- * @param {string} path
+ * @param {func} addField inserts new input field in store
+ * @param {func} removeField removes input field from store
+ * @param {string} path util passed in setFieldValue and getFieldValue func
  */
-export default class ItemGenerator extends FormComponent {
-  constructor(props, getSchemeTemplate) {
-    super(props);
+export default class ItemGenerator extends Component {
+	constructor(props, getSchemeTemplate) {
+		super(props);
 
-    this.scheme;
+		this.state = {
+			scheme: Map()
+		}
 
-    if (getSchemeTemplate === undefined)
-      console.error('You need to pass getSchemeTemplate func in ItemGenerator component');
+		if (getSchemeTemplate === undefined)
+			console.error('You need to pass getSchemeTemplate func in ItemGenerator component');
 
-    this.toggleField = this.toggleField.bind(this);
-    this.schemeTemplate = getSchemeTemplate.bind(this)();
-    this.buildScheme = this.buildScheme.bind(this);
-  }
+		bindFunctions.call(this, ['toggleField', 'buildSchemeItems', 'updateSchemeItems']);
+		this.schemeTemplate = getSchemeTemplate.bind(this)();
+	}
 
-  componentWillMount(){
-    const scheme = this.buildScheme(this.props.fields);
-    this.scheme = scheme;
-    super.setScheme(scheme);
-    const model = super.buildModel(scheme);
-    super.setState({
-      model
-    });
-  }
+	componentWillMount(){
+		console.log(`ItemGenerator #${this.props.index}. Just created.`);
 
-  componentWillReceiveProps(nextProps) {
-    const oldFieldKeys = [];
-    const newFieldKeys = [];
-    for (let key in this.props.fields)
-      oldFieldKeys.push(key);
-    for (let key in nextProps.fields)
-      newFieldKeys.push(key);
+		const items = this.buildSchemeItems(this.props.fields);
 
-    const isFieldsEqual = equal(oldFieldKeys, newFieldKeys);
-    if (!isFieldsEqual) {
-      const newScheme = this.buildScheme(nextProps.fields);
-      const newModel = super.updateModel(newScheme, this.scheme);
+		this.setState(({scheme}) => ({
+			scheme: scheme.set('items', items)
+		}));
+	}
 
-      super.setState({
-        model: newModel
-      });
-      super.setScheme(newScheme);
-    }
-  }
+	componentWillReceiveProps(nextProps) {
+		if (this.props.fields === nextProps.fields) {
 
-  toggleField(fieldName, defaultValue) {
-    if (this.props.fields[fieldName] === undefined) {
-      this.props.addField(fieldName, defaultValue);
-    } else {
-      this.props.removeField(fieldName);
-    }
-  }
+			if (this.props.path !== nextProps.path) {
+				console.log(`ItemGenerator #${this.props.index}. Supplied path changed.`);
+				return;
+			}
 
-  /**
-   * builds scheme object that include items specified in fields object
-   * @return {obj} scheme
-   */
-  buildScheme(fields) {
-    const scheme = { items: [] };
+			console.log(`ItemGenerator #${this.props.index}. Nothing changed.`);
+			return;
+		}
 
-    //if template item name was found in fields object, item adds to scheme object
-    scheme.items = this.schemeTemplate.filter((item, i) => (fields[item.name] !== undefined));
-    return scheme;
-  }
+		//if fields object keys changed, then update scheme
+		const keys = this.props.fields.keySeq();
+		const nextKeys = nextProps.fields.keySeq();
+		const equal = nextKeys.equals(keys)
+		const updated = !equal;
 
-  render() {
-    return super.render();
-  }
-}
+		if (updated) {
+			console.log(`ItemGenerator #${this.props.index}. Fields keys changed, rebuild scheme...`);
+			const newItems = this.updateSchemeItems(this.props.fields, nextProps.fields, this.state.scheme.get('items'));
+			console.log('New scheme:');
+			console.log(newItems.toJS());
 
-ItemGenerator.propTypes = {
-  setFieldValue: PropTypes.func,
-  getFieldValue: PropTypes.func
+			this.setState(({scheme}) => ({
+				scheme: scheme.set('items', newItems)
+			}));
+
+			return;
+		}
+		console.log(`ItemGenerator #${this.props.index}. Nothing changed.`);
+	}
+
+	toggleField(fieldName, defaultValue) {
+		if (this.props.fields.get(fieldName) === undefined) {
+			this.props.addField(fieldName, defaultValue);
+		} else {
+			this.props.removeField(fieldName);
+		}
+	}
+
+	/**
+	 * builds scheme object that include items specified in fields object
+	 * @return {obj} scheme
+	 */
+	buildSchemeItems(fields) {
+		//if template item name was found in fields object, item adds to scheme object
+		const items = this.schemeTemplate.filter((item, i) => (fields.get(item.name) !== undefined));
+		return fromJS(items);
+	}
+
+	updateSchemeItems(oldFields, newFields, items) {
+		let newItems = List();
+		newItems = newItems.withMutations((newItems) => {
+			this.schemeTemplate.forEach((item, i) => {
+				//if item unedfined in newFields object, continue
+				if (newFields.get(item.name) === undefined)
+					return;
+
+				//item scheme was added in previous items object state
+				if (oldFields.get(item.name) !== undefined) {
+					newItems = newItems.push( items.find(value => value.get('name') === item.name) );
+					return;
+				}
+
+				//need to add item scheme
+				newItems.push( fromJS(item) );
+			});
+		});
+
+		return newItems;
+	}
+
+	render() {
+		return (
+			<FormComponent
+				//TODO: delete index
+				index={this.props.index}
+				ref='form'
+				path={this.props.path}
+				scheme={this.state.scheme}
+				setFieldValue={this.props.setFieldValue}
+				getFieldValue={this.props.getFieldValue}
+			/>
+		);
+	}
 }
