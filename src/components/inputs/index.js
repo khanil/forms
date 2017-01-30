@@ -6,3 +6,4 @@ export InputInteger from './InputInteger';
 export InputOptions from './InputOptions';
 export InputSelect from './InputSelect';
 export InputString from './InputString';
+export InputPhone from './InputPhone';

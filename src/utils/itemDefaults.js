@@ -8,7 +8,7 @@ import * as inputType from '../utils/inputTypes';
 export const QUESTION = {
   _type: itemTypes.QUESTION,
   title: 'Новый вопрос',
-  type: inputType.STRING,
+  type: inputType.PHONE,
   required: true
 }
 

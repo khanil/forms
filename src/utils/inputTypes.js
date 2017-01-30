@@ -11,6 +11,7 @@ export const DATETIME = 'datetime';
 export const PARAGRAPH = 'paragraph';
 export const FINANCIAL = 'financial';
 export const SELECT = 'select';
+export const PHONE = 'phone';
 
 //supporting input type for form generation
 export const OPTIONS = 'options';
@@ -52,5 +53,9 @@ export const INPUT_TYPES = [
   {
     value: 'select',
     label: 'Выбор из списка'
+  },
+  {
+    value: PHONE,
+    label: 'Телефон'
   }
 ];
