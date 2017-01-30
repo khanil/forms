@@ -4,6 +4,7 @@ import DateTimePicker from 'react-widgets/lib/DateTimePicker';
 import Moment from 'moment';
 Moment.locale('ru');
 import momentLocalizer from 'react-widgets/lib/localizers/moment';
+import shallowCompare from 'react-addons-shallow-compare';
 
 momentLocalizer(Moment);
 
@@ -24,6 +25,11 @@ export default class InputDatetime extends Input {
     this.showTimePicker;
     this.applyMode(props.mode);
     this.changeHandler = this.changeHandler.bind(this);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const shouldUpdate = shallowCompare(this, nextProps, nextState);
+    return shouldUpdate;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -66,16 +72,17 @@ export default class InputDatetime extends Input {
 
   render() {
     const {
-      value
+      value, disabled
     } =  this.props.model.toObject();
 
     return (
       <DateTimePicker
         calendar={this.showDatePicker}
+        disabled={disabled}
         format={this.displayFormat}
         onChange={this.changeHandler}
         time={this.showTimePicker}
-        value={ value ? Moment(value).toDate() : null }
+        value={ value ? Moment(value).clone().toDate() : null }
       />
     );
   }

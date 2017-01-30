@@ -30,7 +30,7 @@ export function composeValidators() {
  * @return {Boolean}
  */
 export function notEmpty(value) {
-	return (!value || value.length === 0)
+	return (!value || value.length === 0 || (/^\s+$/).test(value))
 		? {
 			valid: false,
 			error: 'Поле не заполнено'
@@ -101,5 +101,21 @@ export function isFinancial(value) {
 		: {
 			valid: false,
 			error: 'Обязательно две точки после запятой'
+		};
+}
+
+/**
+ * checks is options array has not empty options
+ * @param  {array}  values
+ * @return {Boolean}
+ */
+export function noEmptyOptions(values) {
+	return values.every( (value) => (value && value.length !== 0 && !(/^\s+$/).test(value)) )
+		? {
+			valid: true
+		}
+		: {
+			valid: false,
+			error: 'Не должно быть пустых вариантов ответа'
 		};
 }

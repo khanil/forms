@@ -9,6 +9,26 @@ import * as itemDefaults from '../utils/itemDefaults';
 
 const initialState = Map({});
 
+function prepareInitialState(initialState) {
+  let state = fromJS(initialState);
+  //form init
+  if ( List.isList(initialState) )
+    return state;
+  //form generator init
+  state = state.update('items', items => {
+    const first = items.get(0);
+    let i = 0;
+    const N = 0;
+    while (i < N) {
+      i++;
+      items = items.push(first);
+    }
+    return items;
+  });
+
+  return state.update('items', items => items.map(item => item.set('_id', Math.random())));
+}
+
 export default function forms (forms = initialState, action) {
   switch (action.type) {
     case INIT_FORM: {
@@ -17,7 +37,7 @@ export default function forms (forms = initialState, action) {
         initialState
       } = action;
 
-      const state = initialState ? fromJS(initialState) : formKey === 'scheme' ? Map() : List();
+      const state = initialState ? prepareInitialState(initialState) : formKey === 'scheme' ? Map() : List();
 
       return forms.set(action.formKey, state);
     }
@@ -56,29 +76,46 @@ export default function forms (forms = initialState, action) {
 
     case ADD_ITEM_LIVE: {
       const {
-        previewKey, pos
+        formKey, previewKey, pos
       } = action;
 
-      console.log(forms.get(previewKey));
-
-      if (forms.get(previewKey).size !== 0)
-        forms = forms.updateIn([previewKey], responses => responses.insert(pos));
+      if (forms.get(previewKey).size !== 0) {
+        //push in end
+        if (pos < 0)
+          forms = forms.updateIn([previewKey], responses => responses.push(null));
+        else
+          forms = forms.updateIn([previewKey], responses => responses.insert(pos, null));
+      }
       //fall down to ADD_ITEM
     }
     case ADD_ITEM: {
       const {
-        formKey, pos, itemType
+        formKey, pos, itemType, scheme
       } = action;
 
-      const path = [formKey, 'items'];
-      const item = new Map( itemDefaults.get(itemType) );
+      //if scheme provided, new item will have this scheme
+      const item = scheme === undefined ? new Map( itemDefaults.get(itemType) ) : scheme.set('_id', Math.random());
 
+      const path = [formKey, 'items'];
+      //push in end
+      if (pos < 0) {
+        return forms.updateIn(path, items => items.push(item));
+      }
       return forms.updateIn(path, items => items.insert(pos, item));
     }
 
+    case REMOVE_ITEM_LIVE: {
+      const {
+        previewKey, pos
+      } = action;
+
+      if (forms.get(previewKey).size !== 0)
+        forms = forms.updateIn([previewKey], responses => responses.delete(pos));
+      //fall down to REMOVE_ITEM
+    }
     case REMOVE_ITEM: {
       const {
-        formKey, pos, itemType
+        formKey, pos
       } = action;
 
       if (pos < 0)
@@ -88,6 +125,18 @@ export default function forms (forms = initialState, action) {
       return forms.updateIn(path, items => items.delete(pos));
     }
 
+    case SWAP_ITEMS_LIVE: {
+      const {
+        previewKey, fPos, sPos
+      } = action;
+
+      if (forms.get(previewKey).size !== 0)
+        forms = forms.update(previewKey, responses => {
+          const buffer = responses.get(fPos);
+          return responses.set(fPos, responses.get(sPos)).set(sPos, buffer);
+        });
+      //fall down to SWAP_ITEMS
+    }
     case SWAP_ITEMS: {
       const {
         formKey, fPos, sPos

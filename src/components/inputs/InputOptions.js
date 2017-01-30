@@ -10,7 +10,7 @@ export default class InputOptions extends Input {
     super(props);
 
     this.state = {
-      values: List(props.model.get(value))
+      values: List(props.model.get('value'))
     }
 
     bindFunctions.call(this, ['renderFields', 'handlerInput', 'pushField', 'removeField', 'applyChanges']);
@@ -18,58 +18,48 @@ export default class InputOptions extends Input {
 
   applyChanges(newValue) {
     this.props.model.get('changeHandler')(newValue);
-
-    //checks empty input fields
-    // if (this.props.model.validate == 'true' && this.props.model._valid !== false) {
-    //   if ( newValue.some( (value) => ( !value || value.length === 0) )) {
-    //     this.props.model._valid = false;
-    //     this.props.model._error = 'Вариант ответа не может быть пустым';
-    //   } else {
-    //     this.props.model._valid = true;
-    //     delete this.props.model._error;
-    //   }
-    // }
   }
 
   handlerInput(e, fieldIndex) {
     const inputValue = e.target.value;
 
-    const newValuesState = this.state.values.set('fieldIndex', inputValue);
+    const newValuesState = this.state.values.set(fieldIndex, inputValue);
 
     this.setState({
       values: newValuesState
-    })
+    });
 
     this.applyChanges(newValuesState);
   }
 
   pushField() {
-    this.setState(({values}) => ({
-      values: values.push('')
-    }));
+    const newValuesState = this.state.values.push('');
+
+    this.setState({
+      values: newValuesState
+    });
 
     this.applyChanges(newValuesState);
   }
 
   removeField(index) {
     //must be at least one option input field
-    if (this.state.values.size === 1) 
+    if (this.state.values.size === 1) {
+      alert('Формат ответа "Выбор из списка" подразумевает наличие хотя бы одного варианта ответа.');
       return;
+    }
 
-    this.setState(({values}) => ({
-      values: values.delete(index)
-    }));
+    const newValuesState = this.state.values.delete(index);
+
+    this.setState({
+      values: newValuesState
+    });
 
     this.applyChanges(newValuesState);
   }
 
   renderFields() {
-    const values = this.props.model.get(value);
-
-    if ( !Array.isArray(values) ) {
-      console.error('InputOptions must recieve array of values');
-      return;
-    }
+    const values = this.state.values;
 
     return values.map((value, i) => (
       <div className='input-group option-input form-group' key={i}>

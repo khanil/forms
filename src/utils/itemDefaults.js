@@ -7,19 +7,20 @@ import * as inputType from '../utils/inputTypes';
 
 export const QUESTION = {
   _type: itemTypes.QUESTION,
-  title: 'Новый вопрос',
+  title: '',
+  description: '',
   type: inputType.STRING,
-  required: true
+  required: 'true'
 }
 
 export const DELIMETER = {
   _type: itemTypes.DELIMETER,
-  title: 'Текст разделителя'
+  title: ''
 }
 
 export const IMAGE = {
   _type: itemTypes.IMAGE,
-  title: 'Описание изображения',
+  title: '',
   link: ''
 }
 

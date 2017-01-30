@@ -8,7 +8,9 @@ import {
 	InputSelect,
 	InputDatetime,
 	InputOptions,
-	InputImage
+	InputImage,
+	InputParagraph,
+	InputSwitch
 } from '../components/inputs';
 
 /**
@@ -20,11 +22,13 @@ import {
 function getInputByType(type, model, index) {
 	switch (type.toLowerCase()) {
 		case inputType.STRING :
-		case inputType.PARAGRAPH :
 		case inputType.INTEGER :
 		case inputType.FLOAT :
 		case inputType.FINANCIAL :
 			return <InputString model={model}></InputString>;
+
+		case inputType.PARAGRAPH :
+			return <InputParagraph model={model}></InputParagraph>;
 
 		case inputType.SELECT :
 			return <InputSelect model={model}></InputSelect>;
@@ -40,6 +44,8 @@ function getInputByType(type, model, index) {
 			return <InputOptions model={model}></InputOptions>
 		case inputType.IMAGE:
 			return <InputImage model={model}></InputImage>
+		case inputType.SWITCH:
+			return <InputSwitch model={model}></InputSwitch>
 
 		default:
 			console.error(`Unknown question type: ${type}`);

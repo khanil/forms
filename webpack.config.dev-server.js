@@ -4,7 +4,7 @@ var webpack = require('webpack');
 module.exports = {
   devtool: 'eval-source-map',
   entry: [
-    'webpack-dev-server/client?http://localhost:3000',
+    'webpack-dev-server/client?http://localhost:4000',
     'webpack/hot/only-dev-server',
     './src/index_test'
   ],
@@ -14,7 +14,8 @@ module.exports = {
     publicPath: '/static/'
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.ContextReplacementPlugin(/moment[\\\/]locale$/, /^\.\/(ru)$/)
   ],
   module: {
     loaders: [{

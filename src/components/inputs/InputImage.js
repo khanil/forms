@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
+import CComponent from '../CComponent';
 
-export default class InputInteger extends Component {
+export default class InputInteger extends CComponent {
 
   constructor(props) {
     super(props);

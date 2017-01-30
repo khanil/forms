@@ -9,7 +9,16 @@ function getSchemeTemplate() {
       name: 'title',
       title: 'Текст вопроса',
       type: inputTypes.STRING,
-      required: true
+      placeholder: 'Введите вопрос',
+      required: 'true'
+    },
+    {
+      _type: 'question',
+      name: 'description',
+      title: 'Комментарий к вопросу',
+      type: inputTypes.PARAGRAPH,
+      placeholder: 'Здесь вы можете ввести комментарий к вопросу',
+      required: 'false'
     },
     {
       _type: 'question',
@@ -18,39 +27,65 @@ function getSchemeTemplate() {
       type: inputTypes.SELECT,
       options: inputTypes.INPUT_TYPES,
       placeholder: 'Выберите формат ответа...',
-      required: true,
+      required: 'true',
       callbacks: {
-        [inputTypes.SELECT]: () => this.toggleField('options', [' '])
+        [inputTypes.SELECT]: () => this.toggleFields({
+          options: [''],
+          multiple: 'false'
+        })
       }
+    },
+    {
+      _type: 'question',
+      name: 'multiple',
+      title: 'Разрешить выбор нескольких ответов из списка',
+      type: inputTypes.SELECT,
+      options: [
+        {
+          label: 'Да',
+          value: 'true'
+        },
+        {
+          label: 'Нет',
+          value: 'false'
+        }
+      ],
+      required: 'true',
+      callbacks: {
+        ['true']: () => this.toggleFields({
+          ['selectmax']: ''
+        })
+      }
+    },
+    {
+      _type: 'question',
+      name: 'selectmax',
+      title: 'Максимальное количество выбранных вариантов',
+      type: inputTypes.INTEGER,
+      placeholder: 'Оставить пустым, чтобы не ограничивать'
     },
     {
       _type: 'question',
       name: 'options',
       title: 'Варианты ответа',
       type: inputTypes.OPTIONS
-    },
-    {
-      _type: 'question',
-      name: 'description',
-      title: 'Описание',
-      type: inputTypes.STRING
-    },
-    {
-      _type: 'question',
-      name: 'required',
-      title: 'Обязательный?',
-      type: inputTypes.SELECT,
-      options: [
-        {
-          value: true,
-          label: 'Да'
-        },
-        {
-          value: false,
-          label: 'Нет'
-        }
-      ]
     }
+    // {
+    //   _type: 'question',
+    //   name: 'required',
+    //   title: 'Обязательный?',
+    //   type: inputTypes.SWITCH,
+    //   options: [
+    //     {
+    //       value: 'true',
+    //       label: 'Да'
+    //     },
+    //     {
+    //       value: 'false',
+    //       label: 'Нет'
+    //     }
+    //   ]
+    // }
   ]
 }
 
@@ -65,23 +100,13 @@ function getSchemeTemplate() {
  */
 export default class QuestionGenerator extends ItemGenerator {
   constructor(props) {
-    super(props, getSchemeTemplate);
+    super(props, getSchemeTemplate, 'question');
     this.componentWillMount = super.componentWillMount;
     this.componentWillReceiveProps = super.componentWillReceiveProps;
   }
 
   render() {
-    return (
-      <div>
-        {super.render()}
-        <button type="button" className="btn btn-default" onClick={
-          () => {this.props.addField('required')}
-        }>+</button>
-        <button type="button" className="btn btn-default" onClick={
-          () => {this.props.removeField('required')}
-        }>-</button>
-      </div>
-    )
+    return super.render();
   }
 }
 

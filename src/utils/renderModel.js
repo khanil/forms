@@ -1,8 +1,6 @@
 import React from 'react';
 import * as itemType from './itemTypes';
-import InputGroup from '../components/InputGroup';
-import Delimeter from '../components/Delimeter';
-import Image from '../components/Image';
+import { InputGroup, Delimeter, Image } from '../components/items';
 import renderInput from './renderInput';
 
 
@@ -20,6 +18,7 @@ export default function renderModel(model) {
 		switch (type.toLowerCase()) {
 			case itemType.QUESTION :
 				const index = questionsCounter++;
+				const qType = item.get('type');
 
 				return <InputGroup key={i} index={index} model={item}>
 									{renderInput(item, index)}

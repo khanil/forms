@@ -15,6 +15,7 @@ export const SELECT = 'select';
 //supporting input type for form generation
 export const OPTIONS = 'options';
 export const IMAGE = 'image';
+export const SWITCH = 'switch';
 
 export const INPUT_TYPES = [
   {
@@ -26,8 +27,8 @@ export const INPUT_TYPES = [
     label: 'Целое число'
   },
   {
-    value: 'float',
-    label: 'Дробное число'
+    value: 'select',
+    label: 'Выбор из списка'
   },
   {
     value: 'date',
@@ -43,14 +44,14 @@ export const INPUT_TYPES = [
   },
   {
     value: 'paragraph',
-    label: 'Параграф'
+    label: 'Абзац'
+  },
+  {
+    value: 'float',
+    label: 'Дробное число'
   },
   {
     value: 'financial',
     label: 'Денежное значение'
-  },
-  {
-    value: 'select',
-    label: 'Выбор из списка'
   }
 ];

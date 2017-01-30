@@ -1,23 +1,26 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import bindFunctions from '../utils/bind-functions';
+import { bindFunctions } from '../utils';
 import FormComponent from '../components/FormComponent';
 import { initForm, handleUserInput } from '../actions';
+import CComponent from '../components/CComponent';
 
 /**
  * Container component that provides data, callbacks and scheme for FormComponent
  * @param {string} formKey name of object that will store form responses in redux-state
  * @param {object} scheme
  */
-class Form extends Component {
+class Form extends CComponent {
   constructor(props) {
     super(props);
     this.formKey = this.props.formKey;
 
+    bindFunctions.call(this, ['submitHandler', 'setFieldValue', 'getFieldValue']);
+  }
+
+  componentWillMount() {
     // make object in redux store to store responses of current form
     this.props.initForm(this.formKey, this.props.initialState);
-
-    bindFunctions.call(this, ['submitHandler', 'setFieldValue', 'getFieldValue']);
   }
 
   /**
@@ -46,32 +49,35 @@ class Form extends Component {
     const isFormValid = this.refs.formComponent.checkFormValidity();
     console.log(`Form valid? -${isFormValid}`);
 
-    if (!isFormValid)
+    if (!isFormValid) {
+      alert('Во время заполнения полей возникли ошибки.\nПроверьте правильность заполнения полей и повторите отправку.');
       return;
+    }
+
+    const responses = this.props.forms.get(this.formKey).toJS();
 
     if (!this.props.onSubmit)
-      console.error('onSubmit function does\'nt provided as a prop to Form component');
+      console.warn('onSubmit function does\'nt provided as a prop to Form component');
     else
-      this.props.onSubmit(this.props.forms.get(this.formKey).toJS());
+      this.props.onSubmit(responses);
 
-    alert(JSON.stringify(this.props.forms.get(this.formKey).toJS(), "", 4));
+    console.log(JSON.stringify(responses, "", 4));
   }
 
   render() {
     //store doesn't set up yet
-    if (this.props.scheme === undefined)
+    if (this.props.scheme === undefined || this.props.forms.get(this.formKey) === undefined)
       return null;
 
     return (
-      <form onSubmit={this.submitHandler}>
-        <FormComponent
-          ref='formComponent'
-          index='form'
-          scheme={this.props.scheme}
-          setFieldValue={this.setFieldValue}
-          getFieldValue={this.getFieldValue}
-        />
-      </form>
+      <FormComponent
+        ref='formComponent'
+        index='form'
+        scheme={this.props.scheme}
+        setFieldValue={this.setFieldValue}
+        getFieldValue={this.getFieldValue}
+        disabled={this.props.disabled}
+      />
     );
   }
 }

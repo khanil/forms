@@ -8,6 +8,7 @@ function getSchemeTemplate() {
       _type: 'question',
       name: 'title',
       title: 'Сопроводительный текст',
+      placeholder: 'Введите текст',
       type: inputTypes.STRING
     },
     {
@@ -30,17 +31,13 @@ function getSchemeTemplate() {
  */
 export default class ImageGenerator extends ItemGenerator {
   constructor(props) {
-    super(props, getSchemeTemplate);
+    super(props, getSchemeTemplate, 'image');
     this.componentWillMount = super.componentWillMount;
     this.componentWillReceiveProps = super.componentWillReceiveProps;
   }
 
   render() {
-    return (
-      <div>
-        {super.render()}
-      </div>
-    );
+    return super.render();
   }
 }
 

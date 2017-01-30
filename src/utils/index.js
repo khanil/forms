@@ -10,3 +10,4 @@ export * as validations from './validations';
 
 export makeActionCreator from './makeActionCreator';
 export * as nestedObject from './makeActionCreator';
+export bindFunctions from './bind-functions';

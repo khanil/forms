@@ -11,13 +11,13 @@ const scheme = fromJS({
      _type: 'question',
      title: 'Первый вопрос',
      type: 'datetime',
-     required: true
+     required: 'true'
    },
    {
      _type: 'question',
      title: 'Второй вопрос',
      type: 'integer',
-     required: true
+     required: 'true'
    },
    {
      _type: 'delimeter',
@@ -27,7 +27,7 @@ const scheme = fromJS({
      _type: 'question',
      title: 'Третий вопрос',
      type: 'select',
-     required: true,
+     required: 'true',
      options: [
        '1',
        '2',
@@ -39,10 +39,40 @@ const scheme = fromJS({
      _type: 'question',
      title: 'Четвертый вопрос',
      type: 'financial',
-     required: true
+     required: 'true'
    }
  ]
 });
+
+const formTypes = [
+  {
+    label: 'Мониторинг',
+    value: 'monitoring'
+  },
+  {
+    label: 'Опрос',
+    value: 'pool'
+  }
+];
+
+const basisTypes = [
+  {
+    label: 'План работ',
+    value: 'План работ'
+  },
+  {
+    label: 'Приказ',
+    value: 'Приказ'
+  },
+  {
+    label: 'Распоряжение',
+    value: 'Распоряжение'
+  },
+  {
+    label: 'Иное',
+    value: 'Иное'
+  }
+];
 
 export default class App extends Component {
   constructor(props) {
@@ -104,7 +134,7 @@ export default class App extends Component {
               </button>
             </div>
             <div className="row" hidden={this.state.generator ? '' : 'true'}>
-              <FormGenerator ref='generator' previewKey='myForm'/>
+              <FormGenerator ref='generator' previewKey={'myForm'} formTypes={formTypes} basisTypes={basisTypes} />
               <button type="button" className="btn btn-primary" onClick={() => this.submitHandler('generator')}>Сохранить</button>
             </div>
           </div>

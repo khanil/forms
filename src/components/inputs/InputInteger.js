@@ -9,11 +9,11 @@ export default class InputInteger extends Input {
 
   render() {
     const {
-      value, changeHandler
+      value, changeHandler, placeholder
     } =  this.props.model.toObject();
 
     return (
-      <input type="text" className="form-control" value={value} onChange={changeHandler}/>
+      <input type="text" className="form-control" value={value} onChange={changeHandler} placeholder={placeholder}/>
     );
   }
 }

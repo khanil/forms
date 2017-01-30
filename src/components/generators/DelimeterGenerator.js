@@ -7,8 +7,15 @@ function getSchemeTemplate(){
     {
     _type: 'question',
     name: 'title',
-    title: 'Текст над разделителем',
+    title: 'Заголовок раздела',
+    placeholder: 'Введите текст заголовка',
     type: inputTypes.STRING
+    },
+    {
+      _type: 'question',
+      name: 'description',
+      title: 'Описание',
+      type: inputTypes.STRING
     }
   ]
 }
@@ -24,17 +31,13 @@ function getSchemeTemplate(){
  */
 export default class DelimeterGenerator extends ItemGenerator {
   constructor(props) {
-    super(props, getSchemeTemplate);
+    super(props, getSchemeTemplate, 'delimeter');
     this.componentWillMount = super.componentWillMount;
     this.componentWillReceiveProps = super.componentWillReceiveProps;
   }
 
   render() {
-    return (
-      <div>
-        {super.render()}
-      </div>
-    );
+    return super.render();
   }
 }
 

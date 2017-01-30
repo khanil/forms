@@ -2,15 +2,18 @@ var path = require('path');
 var webpack = require('webpack');
 
 var UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
+var ContextReplacementPlugin = webpack.ContextReplacementPlugin;
 var env = process.env.WEBPACK_ENV;
 
 var libraryName = 'react-super-forms';
 var plugins = [], outputFile;
 
+plugins.push(new ContextReplacementPlugin(/moment[\\\/]locale$/, /^\.\/(ru)$/));
+
 if (env == 'build') {
   plugins.push(new UglifyJsPlugin({ minimize: true }));
   outputFile = libraryName + '.min.js';
-  devtool = 'eval-source-map';
+  devtool = null;
 } else {
   outputFile = libraryName + '.js';
   devtool = 'eval';
