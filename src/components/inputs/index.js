@@ -8,3 +8,4 @@ export InputSelect from './InputSelect';
 export InputString from './InputString';
 export InputParagraph from './InputParagraph';
 export InputSwitch from './InputSwitch';
+export InputPhone from './InputPhone';

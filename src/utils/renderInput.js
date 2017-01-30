@@ -10,7 +10,8 @@ import {
 	InputOptions,
 	InputImage,
 	InputParagraph,
-	InputSwitch
+	InputSwitch,
+	InputPhone
 } from '../components/inputs';
 
 /**
@@ -41,11 +42,15 @@ function getInputByType(type, model, index) {
 			return <InputDatetime model={model} mode={'date'}></InputDatetime>;
 
 		case inputType.OPTIONS:
-			return <InputOptions model={model}></InputOptions>
+			return <InputOptions model={model}></InputOptions>;
 		case inputType.IMAGE:
 			return <InputImage model={model}></InputImage>
+
 		case inputType.SWITCH:
 			return <InputSwitch model={model}></InputSwitch>
+
+		case inputType.PHONE:
+			return <InputPhone model={model}></InputPhone>;
 
 		default:
 			console.error(`Unknown question type: ${type}`);
