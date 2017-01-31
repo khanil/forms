@@ -11,7 +11,8 @@ import {
 	InputImage,
 	InputParagraph,
 	InputSwitch,
-	InputPhone
+	InputPhone,
+	InputEmail
 } from '../components/inputs';
 
 /**
@@ -51,6 +52,9 @@ function getInputByType(type, model, index) {
 
 		case inputType.PHONE:
 			return <InputPhone model={model}></InputPhone>;
+
+		case inputType.EMAIL:
+			return <InputEmail model={model}></InputEmail>;
 
 		default:
 			console.error(`Unknown question type: ${type}`);

@@ -120,6 +120,19 @@ export function isPhone(value) {
 		}
 }
 
+
+export const EMAIL_REGEXP = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+export function isEmail(value) {
+	return (EMAIL_REGEXP.test(value))
+		? {
+			valid: true
+		}
+		: {
+			valid: false,
+			error: 'Введен некорректный адрес'
+		}
+}
+
 /**
  * checks is options array has not empty options
  * @param  {array}  values

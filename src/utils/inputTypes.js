@@ -12,6 +12,7 @@ export const PARAGRAPH = 'paragraph';
 export const FINANCIAL = 'financial';
 export const SELECT = 'select';
 export const PHONE = 'phone';
+export const EMAIL = 'email';
 
 //supporting input type for form generation
 export const OPTIONS = 'options';
@@ -58,5 +59,9 @@ export const INPUT_TYPES = [
   {
     value: PHONE,
     label: 'Телефон'
+  },
+  {
+    value: EMAIL,
+    label: 'Электронная почта'
   }
 ];
