@@ -104,6 +104,22 @@ export function isFinancial(value) {
 		};
 }
 
+import convertToRegExp from './convertToRegExp';
+export const PHONE_FORMAT = '+7 (___) ___-__-__';
+export const PHONE_SYMBOL = '_';
+export const PHONE_REGEXP = convertToRegExp(PHONE_FORMAT, PHONE_SYMBOL);
+
+export function isPhone(value) {
+	return (PHONE_REGEXP.test(value))
+		? {
+			valid: true
+		}
+		: {
+			valid: false,
+			error: 'Поле не заполнено'
+		}
+}
+
 /**
  * checks is options array has not empty options
  * @param  {array}  values
