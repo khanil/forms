@@ -7,9 +7,10 @@ import * as inputType from '../utils/inputTypes';
 
 export const QUESTION = {
   _type: itemTypes.QUESTION,
+  description: '',
   title: 'Новый вопрос',
-  type: inputType.EMAIL,
-  required: true
+  type: inputType.STRING,
+  required: 'true'
 }
 
 export const DELIMETER = {

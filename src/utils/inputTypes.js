@@ -29,8 +29,20 @@ export const INPUT_TYPES = [
     label: 'Целое число'
   },
   {
+    value: 'float',
+    label: 'Дробное число'
+  },
+  {
     value: 'select',
     label: 'Выбор из списка'
+  },
+  {
+    value: PHONE,
+    label: 'Телефон'
+  },
+  {
+    value: EMAIL,
+    label: 'Электронная почта'
   },
   {
     value: 'date',
@@ -47,21 +59,5 @@ export const INPUT_TYPES = [
   {
     value: 'paragraph',
     label: 'Абзац'
-  },
-  {
-    value: 'float',
-    label: 'Дробное число'
-  },
-  {
-    value: 'select',
-    label: 'Выбор из списка'
-  },
-  {
-    value: PHONE,
-    label: 'Телефон'
-  },
-  {
-    value: EMAIL,
-    label: 'Электронная почта'
   }
 ];

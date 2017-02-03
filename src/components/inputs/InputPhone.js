@@ -201,8 +201,10 @@ export default class InputPhone extends Component {
         </span>
         <input
           type="text"
-          className="form-control" 
+          className="form-control"
+          disabled={model.disabled}
           value={value}
+          placeholder={model.placeholder}
           onBlur={this.onBlur}
           onChange={this.onChange} 
           onFocus={this.onFocus}
