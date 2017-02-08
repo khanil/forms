@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Input from './Input';
 import debounce from 'throttle-debounce/debounce';
 import convertToRegExp from '../../utils/convertToRegExp';
+import shallowCompare from 'react-addons-shallow-compare';
 
 const FORMAT = '+7 (___) ___-__-__';
 const SYMBOL = '_';
@@ -26,16 +27,13 @@ export default class InputPhone extends Component {
     this.onBlur = this.onBlur.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onFocus = this.onFocus.bind(this);
+    this.updateCaretPosition = this.updateCaretPosition.bind(this);
     this.debouncedSaveToRedux = debounce(300, this.props.model.toJS().changeHandler);  
   }
 
-  componentWillUpdate(nextProps) {
-    // console.log(nextProps.model.toJS());
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const inputGroup = ReactDOM.findDOMNode(this);
-    inputGroup.querySelector('input').setSelectionRange(this.caretPos, this.caretPos);
+  shouldComponentUpdate(nextProps, nextState) {
+    const shouldUpdate = shallowCompare(this, nextProps, nextState);
+    return shouldUpdate;
   }
 
   onBlur(e) {
@@ -50,7 +48,7 @@ export default class InputPhone extends Component {
 
     if (caretPos - 1 < this.pattern.indexOf(this.symbol) && value.length > this.state.value.length) {
       this.caretPos = this.defaultCaretPos;
-      this.forceUpdate();
+      this.forceUpdate(this.updateCaretPosition);
       return;
     }
 
@@ -64,7 +62,7 @@ export default class InputPhone extends Component {
 
         if (pos < 0) {
           this.caretPos = this.defaultCaretPos;
-          this.forceUpdate();
+          this.forceUpdate(this.updateCaretPosition);
           return;
         } else {
           value = value.slice(0, pos) + value.slice(pos + 1);
@@ -77,7 +75,7 @@ export default class InputPhone extends Component {
     this.caretPos = isDel ? this.findNextDeleteCaretPos(this.pattern, caretPos) : this.findNextInputCaretPos(formatStr, this.pattern, caretPos);
     this.setState({
       value: formatStr
-    });
+    }, this.updateCaretPosition);
     this.debouncedSaveToRedux(formatStr);
   }
 
@@ -106,20 +104,7 @@ export default class InputPhone extends Component {
   }
 
   onFocus(e) {
-    // const input = e.target;
-    // let pos = this.pattern.indexOf(this.symbol);
-    // if (pos < 0)
-    //   pos = 0;
 
-    // setTimeout((function(el, position) {
-    //     var strLength = el.value.length;
-    //     return function() {
-    //         if(el.setSelectionRange !== undefined) {
-    //             el.setSelectionRange(position, position);
-    //         } else {
-    //             //$(el).val(el.value);
-    //         }
-    // }}(input, pos)), 0);
   }
 
   findNextInputCaretPos(text, pattern, caretPos) {
@@ -145,19 +130,7 @@ export default class InputPhone extends Component {
     if (!str) {
       return '';
     }
-    // console.log(this.regExp);
-    // console.log(str);
 
-    // const res = this.regExp.exec(str);
-    // console.log(res);
-    // if (!res)
-    //   return '';
-
-    // let digitStr = '';
-    // for (let i = 1; i < res.length; i++) {
-    //   digitStr += res[i];
-    // }
-    // return digitStr;
     return str.slice(2).replace(/\D/g, '').slice(0, 10);
   }
 
@@ -188,6 +161,11 @@ export default class InputPhone extends Component {
     }, {formattedText: '', remainingText: value.split('')});
 
     return formattedObject.formattedText + formattedObject.remainingText.join('');
+  }
+
+  updateCaretPosition() {
+    const inputGroup = ReactDOM.findDOMNode(this);
+    inputGroup.querySelector('input').setSelectionRange(this.caretPos, this.caretPos);
   }
 
   render() {
